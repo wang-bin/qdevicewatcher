@@ -17,20 +17,21 @@
 	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
-#include "qusbwatcher.h"
-#include "qusbwatcher_p.h"
+#include "qdevicewatcher.h"
+#include "qdevicewatcher_p.h"
 
-QUsbWatcher::QUsbWatcher(QObject* parent)
-	:QObject(parent),d_ptr(new QUsbWatcherPrivate)
+QDeviceWatcher::QDeviceWatcher(QObject* parent)
+	:QObject(parent),d_ptr(new QDeviceWatcherPrivate)
 {
-	Q_D(QUsbWatcher);
+	Q_D(QDeviceWatcher);
 	connect(d, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
 	connect(d, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
 	connect(d, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
-
+	connect(d, SIGNAL(deviceAdded(QString)), SLOT(slotDeviceAdded(QString)));
+	connect(d, SIGNAL(deviceRemoved(QString)), SLOT(slotDeviceRemoved(QString)));
 }
 
-QUsbWatcher::~QUsbWatcher()
+QDeviceWatcher::~QDeviceWatcher()
 {
 	if (d_ptr) {
 		delete d_ptr;

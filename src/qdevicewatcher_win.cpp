@@ -18,13 +18,11 @@
 ******************************************************************************/
 
 
-#include "qusbwatcher_p.h"
+#include "qdevicewatcher_p.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
-#include <QDebug>
 
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #include <dbt.h>
 
@@ -88,9 +86,9 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				DEV_BROADCAST_VOLUME *db_volume = (DEV_BROADCAST_VOLUME *)lpdb;
 				QStringList drives = drivesFromMask(db_volume->dbcv_unitmask);
 #ifdef GWLP_USERDATA
-				QUsbWatcherPrivate *watcher = (QUsbWatcherPrivate *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				QDeviceWatcherPrivate *watcher = (QDeviceWatcherPrivate *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 #else
-				QUsbWatcherPrivate *watcher = (QUsbWatcherPrivate *)GetWindowLong(hwnd, GWL_USERDATA);
+				QDeviceWatcherPrivate *watcher = (QDeviceWatcherPrivate *)GetWindowLong(hwnd, GWL_USERDATA);
 #endif
 
 				if (wParam == DBT_DEVICEARRIVAL) {
@@ -204,7 +202,7 @@ static inline void dw_destroy_internal_window(HWND hwnd)
 
 
 
-bool QUsbWatcherPrivate::init()
+bool QDeviceWatcherPrivate::init()
 {
 	hwnd = dw_create_internal_window(this);
 
@@ -214,16 +212,16 @@ bool QUsbWatcherPrivate::init()
 	return hwnd;
 }
 
-QUsbWatcherPrivate::~QUsbWatcherPrivate()
+QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 	dw_destroy_internal_window(hwnd);
 }
 
-void QUsbWatcherPrivate::parseDeviceInfo()
+void QDeviceWatcherPrivate::parseDeviceInfo()
 {
 }
 
-void QUsbWatcherPrivate::parseLine(const QByteArray &line)
+void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	Q_UNUSED(line);
 }

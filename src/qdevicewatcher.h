@@ -23,24 +23,26 @@
 #include <QtCore/QObject>
 
 
-class QUsbWatcherPrivate;
+class QDeviceWatcherPrivate;
 
-class QUsbWatcher : public QObject
+class QDeviceWatcher : public QObject
 {
     Q_OBJECT
-	Q_DECLARE_PRIVATE(QUsbWatcher)
+	Q_DECLARE_PRIVATE(QDeviceWatcher)
 public:
-    explicit QUsbWatcher(QObject *parent = 0);
-	~QUsbWatcher();
+	explicit QDeviceWatcher(QObject *parent = 0);
+	~QDeviceWatcher();
 
 signals:
 	void deviceAdded(const QString& dev);
 	void deviceChanged(const QString& dev); //when umounting the device
 	void deviceRemoved(const QString& dev);
 
-
+public slots:
+	void slotDeviceAdded(const QString& dev) { qDebug("%s: add %s", __FUNCTION__, qPrintable(dev));}
+	void slotDeviceRemoved(const QString& dev) { qDebug("%s: remove %s", __FUNCTION__, qPrintable(dev));}
 protected:
-	QUsbWatcherPrivate *d_ptr;
+	QDeviceWatcherPrivate *d_ptr;
 };
 
 #endif // QUSBWATCHER_H

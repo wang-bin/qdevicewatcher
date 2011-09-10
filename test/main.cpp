@@ -18,13 +18,13 @@
 ******************************************************************************/
 
 #include <QtCore/QCoreApplication>
-#include "qusbwatcher.h"
+#include "qdevicewatcher.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-	QUsbWatcher usb;
+	QDeviceWatcher usb;
 	qDebug("Usb watcher started");
 	return a.exec();
 }

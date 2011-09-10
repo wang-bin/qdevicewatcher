@@ -17,7 +17,7 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
-#include "qusbwatcher_p.h"
+#include "qdevicewatcher_p.h"
 
 
 
@@ -50,12 +50,12 @@ const QByteArray change_str = "change@/devices/pci0000:00/";
 #include <QtNetwork/QTcpSocket>
 #endif
 
-QUsbWatcherPrivate::~QUsbWatcherPrivate()
+QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 
 }
 
-void QUsbWatcherPrivate::init()
+void QDeviceWatcherPrivate::init()
 {
 	struct sockaddr_nl snl;
 	const int buffersize = 16 * 1024 * 1024;
@@ -101,7 +101,7 @@ void QUsbWatcherPrivate::init()
 }
 
 
-void QUsbWatcherPrivate::parseDeviceInfo()
+void QDeviceWatcherPrivate::parseDeviceInfo()
 {//qDebug("%s active", qPrintable(QTime::currentTime().toString()));
 #if CONFIG_SOCKETNOTIFIER
 	QSocketNotifier *sn = qobject_cast<QSocketNotifier*>(sender());
@@ -121,7 +121,7 @@ void QUsbWatcherPrivate::parseDeviceInfo()
 
 #if CONFIG_THREAD
 //another thread
-void QUsbWatcherPrivate::run()
+void QDeviceWatcherPrivate::run()
 {
 	QByteArray line;
 
@@ -138,7 +138,7 @@ void QUsbWatcherPrivate::run()
 }
 #endif //CONFIG_THREAD
 
-void QUsbWatcherPrivate::parseLine(const QByteArray &line)
+void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");

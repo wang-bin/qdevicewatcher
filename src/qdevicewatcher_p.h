@@ -35,7 +35,7 @@
 #include <qt_windows.h>
 #endif //Q_OS_WIN
 
-class QUsbWatcherPrivate
+class QDeviceWatcherPrivate
 #if CONFIG_THREAD
 		: public QThread
 #else
@@ -44,7 +44,7 @@ class QUsbWatcherPrivate
 {
 	Q_OBJECT
 public:
-	QUsbWatcherPrivate(QObject *parent = 0)
+	QDeviceWatcherPrivate(QObject *parent = 0)
 #if CONFIG_THREAD
 	: QThread(parent)
 #else
@@ -54,7 +54,7 @@ public:
 		init();
 	}
 
-	~QUsbWatcherPrivate();
+	~QDeviceWatcherPrivate();
 
 	inline void emitDeviceAdded(const QString& dev) {emit deviceAdded(dev);}
 	inline void emitDeviceChanged(const QString& dev) {emit deviceChanged(dev);}
