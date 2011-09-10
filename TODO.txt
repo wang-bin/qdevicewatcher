@@ -1,2 +1,3 @@
-QHotPlug
+rename QHotPlug?
 input device
+windows and other platforms. See QDrive

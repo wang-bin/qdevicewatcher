@@ -17,9 +17,11 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
-#include "qusbwatcher.h"
+#include "qusbwatcher_p.h"
 
-#ifdef Q_OS_LINUX
+
+
+//#ifdef Q_OS_LINUX
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +37,6 @@
 
 #include <QtCore/QRegExp>
 
-
 #define UEVENT_BUFFER_SIZE      2048
 
 const QByteArray add_str = "add@/devices/pci0000:00/";
@@ -49,55 +50,45 @@ const QByteArray change_str = "change@/devices/pci0000:00/";
 #include <QtNetwork/QTcpSocket>
 #endif
 
-class QUsbWatcherPrivate {
-public:
-	QUsbWatcherPrivate() {
-		struct sockaddr_nl snl;
-		const int buffersize = 16 * 1024 * 1024;
-		int retval;
+QUsbWatcherPrivate::~QUsbWatcherPrivate()
+{
 
-		memset(&snl, 0x00, sizeof(struct sockaddr_nl));
-		snl.nl_family = AF_NETLINK;
-		snl.nl_pid = getpid();
-		snl.nl_groups = 1;
+}
 
-		hotplug_sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
-		if (hotplug_sock == -1) {
-			qWarning("error getting socket: %s", strerror(errno));
-			return;
-		}
+void QUsbWatcherPrivate::init()
+{
+	struct sockaddr_nl snl;
+	const int buffersize = 16 * 1024 * 1024;
+	int retval;
 
-		/* set receive buffersize */
-		setsockopt(hotplug_sock, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize));
-		retval = bind(hotplug_sock, (struct sockaddr*) &snl, sizeof(struct sockaddr_nl));
-		if (retval < 0) {
-			qWarning("bind failed: %s", strerror(errno));
-			close(hotplug_sock);
-			hotplug_sock = -1;
-			return;
-		}
+	memset(&snl, 0x00, sizeof(struct sockaddr_nl));
+	snl.nl_family = AF_NETLINK;
+	snl.nl_pid = getpid();
+	snl.nl_groups = 1;
+
+	hotplug_sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
+	if (hotplug_sock == -1) {
+		qWarning("error getting socket: %s", strerror(errno));
+		return;
 	}
 
-	int hotplug_sock;
-};
-
-QUsbWatcher::QUsbWatcher(QObject* parent) :
-#if CONFIG_THREAD
-	QThread(parent),
-#else
-	QObject(parent),
-#endif
-	d_ptr(new QUsbWatcherPrivate)
-{
-	Q_D(QUsbWatcher);
+	/* set receive buffersize */
+	setsockopt(hotplug_sock, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize));
+	retval = bind(hotplug_sock, (struct sockaddr*) &snl, sizeof(struct sockaddr_nl));
+	if (retval < 0) {
+		qWarning("bind failed: %s", strerror(errno));
+		close(hotplug_sock);
+		hotplug_sock = -1;
+		return;
+	}
 
 #if CONFIG_SOCKETNOTIFIER
-	QSocketNotifier *sn = new QSocketNotifier(d->hotplug_sock, QSocketNotifier::Read, this);
+	QSocketNotifier *sn = new QSocketNotifier(hotplug_sock, QSocketNotifier::Read, this);
 	connect(sn, SIGNAL(activated(int)), SLOT(parseDeviceInfo())); //will always active
 #elif CONFIG_TCPSOCKET
 	//QAbstractSocket *socket = new QAbstractSocket(QAbstractSocket::UnknownSocketType, this); //will not detect "remove", why?
 	QTcpSocket *socket = new QTcpSocket(this); //works too
-	if (!socket->setSocketDescriptor(d->hotplug_sock, QAbstractSocket::ConnectedState)) {
+	if (!socket->setSocketDescriptor(hotplug_sock, QAbstractSocket::ConnectedState)) {
 		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(socket->errorString()));
 		delete socket;
 		start();
@@ -107,10 +98,10 @@ QUsbWatcher::QUsbWatcher(QObject* parent) :
 #else
 	start();
 #endif
-
 }
 
-void QUsbWatcher::parseDeviceInfo()
+
+void QUsbWatcherPrivate::parseDeviceInfo()
 {//qDebug("%s active", qPrintable(QTime::currentTime().toString()));
 #if CONFIG_SOCKETNOTIFIER
 	QSocketNotifier *sn = qobject_cast<QSocketNotifier*>(sender());
@@ -130,9 +121,8 @@ void QUsbWatcher::parseDeviceInfo()
 
 #if CONFIG_THREAD
 //another thread
-void QUsbWatcher::run()
+void QUsbWatcherPrivate::run()
 {
-	Q_D(QUsbWatcher);
 	QByteArray line;
 
 	line.resize(UEVENT_BUFFER_SIZE*2);
@@ -142,13 +132,13 @@ void QUsbWatcher::run()
 		//char buf[UEVENT_BUFFER_SIZE*2] = {0};
 		//recv(d->hotplug_sock, &buf, sizeof(buf), 0);
 		line.fill(0);
-		recv(d->hotplug_sock, line.data(), line.size(), 0);
+		recv(hotplug_sock, line.data(), line.size(), 0);
 		parseLine(line);
 	}
 }
 #endif //CONFIG_THREAD
 
-void QUsbWatcher::parseLine(const QByteArray &line)
+void QUsbWatcherPrivate::parseLine(const QByteArray &line)
 {
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");
@@ -180,15 +170,15 @@ void QUsbWatcher::parseLine(const QByteArray &line)
 	} else if (line.startsWith(change_str)) {
 		if (uDisk.indexIn(line)!=-1) {
 			bus_name = uDisk.cap(0); //?
-			emit deviceChange(bus_name);
+			emit deviceChanged(bus_name);
 			qDebug("Change: %s", qPrintable(bus_name));
 		} else if (sdCard.indexIn(line)!=-1) {
 			bus_name = sdCard.cap(1);
-			emit deviceChange(bus_name);
+			emit deviceChanged(bus_name);
 			qDebug("Change: %s", qPrintable(bus_name));
 		}
 		qDebug("Change bus: %s", qPrintable(bus_name));
 	}
 }
 
-#endif //Q_OS_LINUX
+//#endif //Q_OS_LINUX

@@ -20,46 +20,27 @@
 #ifndef QUSBWATCHER_H
 #define QUSBWATCHER_H
 
-#define CONFIG_SOCKETNOTIFIER 1
-#define CONFIG_TCPSOCKET 0  //QtNetwork
-#define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
-
-#if CONFIG_THREAD
-#include <QtCore/QThread>
-#else
 #include <QtCore/QObject>
-#endif //CONFIG_THREAD
+
 
 class QUsbWatcherPrivate;
 
-class QUsbWatcher
-#if CONFIG_THREAD
-		: public QThread
-#else
-		: public QObject
-#endif //CONFIG_THREAD
+class QUsbWatcher : public QObject
 {
     Q_OBJECT
 	Q_DECLARE_PRIVATE(QUsbWatcher)
 public:
     explicit QUsbWatcher(QObject *parent = 0);
+	~QUsbWatcher();
 
 signals:
 	void deviceAdded(const QString& dev);
-	void deviceChange(const QString& dev); //when umounting the device
+	void deviceChanged(const QString& dev); //when umounting the device
 	void deviceRemoved(const QString& dev);
 
-public slots:
-	void parseDeviceInfo();
 
 protected:
-#if CONFIG_THREAD
-	virtual void run();
-#endif
-	void parseLine(const QByteArray& line);
-
 	QUsbWatcherPrivate *d_ptr;
-	QString bus_name;
 };
 
 #endif // QUSBWATCHER_H

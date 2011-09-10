@@ -18,4 +18,22 @@
 ******************************************************************************/
 
 #include "qusbwatcher.h"
+#include "qusbwatcher_p.h"
 
+QUsbWatcher::QUsbWatcher(QObject* parent)
+	:QObject(parent),d_ptr(new QUsbWatcherPrivate)
+{
+	Q_D(QUsbWatcher);
+	connect(d, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
+	connect(d, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
+	connect(d, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
+
+}
+
+QUsbWatcher::~QUsbWatcher()
+{
+	if (d_ptr) {
+		delete d_ptr;
+		d_ptr = NULL;
+	}
+}

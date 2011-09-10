@@ -19,12 +19,25 @@ include(config.pri)
 
 unix {
 	SOURCES += qusbwatcher_linux.cpp
+} else:win32 {
+	SOURCES += qusbwatcher_win.cpp
 }
+
 SOURCES += main.cpp \
 	qusbwatcher.cpp
 
+
 HEADERS += \
-    qusbwatcher.h
+    qusbwatcher.h \
+    qusbwatcher_p.h
 
 OTHER_FILES += \
     TODO.txt
+
+
+
+
+
+
+
+
