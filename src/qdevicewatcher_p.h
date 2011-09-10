@@ -1,5 +1,5 @@
 /******************************************************************************
-	Name: description
+	QDeviceWatcherPrivate: watching depends on platform
 	Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,8 @@
 	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
-#ifndef QUSBWATCHER_P_H
-#define QUSBWATCHER_P_H
+#ifndef QDEVICEWATCHER_P_H
+#define QDEVICEWATCHER_P_H
 
 #define CONFIG_SOCKETNOTIFIER 1
 #define CONFIG_TCPSOCKET 0  //QtNetwork
@@ -84,4 +84,4 @@ protected:
 };
 
 
-#endif // QUSBWATCHER_P_H
+#endif // QDEVICEWATCHER_P_H

@@ -1,5 +1,5 @@
 /******************************************************************************
-	Name: description
+	Watcher: example
 	Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-	QDeviceWatcher usb;
-	qDebug("Usb watcher started");
+	QDeviceWatcher dev;
+	qDebug("Device watcher started");
 	return a.exec();
 }

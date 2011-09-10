@@ -1,3 +1,4 @@
 rename QHotPlug?
 input device
 windows and other platforms. See QDrive
+watch /etc/mtab
