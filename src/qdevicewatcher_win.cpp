@@ -216,7 +216,3 @@ QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 	dw_destroy_internal_window(hwnd);
 }
-
-void QDeviceWatcherPrivate::parseDeviceInfo()
-{
-}

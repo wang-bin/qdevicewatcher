@@ -62,13 +62,13 @@ public:
 
 signals:
 	void deviceAdded(const QString& dev);
-	void deviceChanged(const QString& dev); //when umounting the device
+	void deviceChanged(const QString& dev); //Linux: when umounting the device
 	void deviceRemoved(const QString& dev);
 
-protected slots:
+private slots:
 	void parseDeviceInfo();
 
-protected:
+private:
 	bool init();
 
 #if defined(Q_OS_LINUX)
