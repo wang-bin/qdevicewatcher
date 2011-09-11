@@ -38,9 +38,6 @@ signals:
 	void deviceChanged(const QString& dev); //when umounting the device
 	void deviceRemoved(const QString& dev);
 
-public slots:
-	void slotDeviceAdded(const QString& dev) { qDebug("%s: add %s", __FUNCTION__, qPrintable(dev));}
-	void slotDeviceRemoved(const QString& dev) { qDebug("%s: remove %s", __FUNCTION__, qPrintable(dev));}
 protected:
 	QDeviceWatcherPrivate *d_ptr;
 };

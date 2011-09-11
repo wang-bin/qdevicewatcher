@@ -27,8 +27,6 @@ QDeviceWatcher::QDeviceWatcher(QObject* parent)
 	connect(d, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
 	connect(d, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
 	connect(d, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
-	connect(d, SIGNAL(deviceAdded(QString)), SLOT(slotDeviceAdded(QString)));
-	connect(d, SIGNAL(deviceRemoved(QString)), SLOT(slotDeviceRemoved(QString)));
 }
 
 QDeviceWatcher::~QDeviceWatcher()
