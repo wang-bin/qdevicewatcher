@@ -220,8 +220,3 @@ QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 void QDeviceWatcherPrivate::parseDeviceInfo()
 {
 }
-
-void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
-{
-	Q_UNUSED(line);
-}

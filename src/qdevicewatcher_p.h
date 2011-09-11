@@ -73,9 +73,9 @@ protected:
 #if CONFIG_THREAD
 	virtual void run();
 #endif
+#if defined(Q_OS_LINUX)
 	void parseLine(const QByteArray& line);
 
-#if defined(Q_OS_LINUX)
 	QString bus_name;
 	int hotplug_sock;
 #elif defined(Q_OS_WIN)
