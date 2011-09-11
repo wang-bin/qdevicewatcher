@@ -27,7 +27,7 @@ class QDeviceWatcherPrivate;
 
 class QDeviceWatcher : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(QDeviceWatcher)
 public:
 	explicit QDeviceWatcher(QObject *parent = 0);
