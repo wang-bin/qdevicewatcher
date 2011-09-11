@@ -70,10 +70,11 @@ protected slots:
 
 protected:
 	bool init();
+
+#if defined(Q_OS_LINUX)
 #if CONFIG_THREAD
 	virtual void run();
 #endif
-#if defined(Q_OS_LINUX)
 	void parseLine(const QByteArray& line);
 
 	QString bus_name;
