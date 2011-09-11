@@ -18,13 +18,13 @@
 ******************************************************************************/
 
 #include <QtCore/QCoreApplication>
-#include "qdevicewatcher.h"
+#include "hotplugwatcher.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-	QDeviceWatcher dev;
-	qDebug("Device watcher started");
+	HotplugWatcher hotplug;
+	qDebug("Hotplug watcher started");
 	return a.exec();
 }

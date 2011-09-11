@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 SUBDIRS = libqdevicewatcher test
 
 libqdevicewatcher.file = src/libQDeviceWatcher.pro
-test.file = test/watcher.pro
+test.file = test/hotplugwatcher.pro
 test.depends += libqdevicewatcher
 
 
