@@ -126,7 +126,7 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 static inline QString className()
 {
-	return QLatin1String("QUsbWatcherWin32_Internal_Widget") + QString::number(quintptr(dw_internal_proc));
+	return QLatin1String("QDeviceWatcherPrivateWin32_Internal_Widget") + QString::number(quintptr(dw_internal_proc));
 }
 
 static inline HWND dw_create_internal_window(const void* userData)
