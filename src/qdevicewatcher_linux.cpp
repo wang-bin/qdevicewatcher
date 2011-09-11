@@ -52,10 +52,9 @@ const QByteArray change_str = "change@/devices/pci0000:00/";
 
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
-
 }
 
-void QDeviceWatcherPrivate::init()
+bool QDeviceWatcherPrivate::init()
 {
 	struct sockaddr_nl snl;
 	const int buffersize = 16 * 1024 * 1024;
@@ -69,7 +68,7 @@ void QDeviceWatcherPrivate::init()
 	hotplug_sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
 	if (hotplug_sock == -1) {
 		qWarning("error getting socket: %s", strerror(errno));
-		return;
+		return false;
 	}
 
 	/* set receive buffersize */
@@ -79,7 +78,7 @@ void QDeviceWatcherPrivate::init()
 		qWarning("bind failed: %s", strerror(errno));
 		close(hotplug_sock);
 		hotplug_sock = -1;
-		return;
+		return false;
 	}
 
 #if CONFIG_SOCKETNOTIFIER
@@ -92,12 +91,13 @@ void QDeviceWatcherPrivate::init()
 		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(socket->errorString()));
 		delete socket;
 		start();
-		return;
+		return false;
 	}
 	connect(socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
 #else
 	start();
 #endif
+	return true;
 }
 
 
@@ -124,7 +124,6 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 void QDeviceWatcherPrivate::run()
 {
 	QByteArray line;
-
 	line.resize(UEVENT_BUFFER_SIZE*2);
 	//eventloop
 	//loop only when event happens. because of recv() block the function?
@@ -143,42 +142,32 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");
 	static QRegExp sdCard("mmcblk[0-9][b-z][0-9]*$");
+	char* action_str;
 
 	bus_name = line.right(line.length()-line.lastIndexOf('/')-1);
 	if (line.startsWith(add_str)) {
+		action_str = "Add";
 		if (uDisk.indexIn(line)!=-1) { //not exactMatch()?
-			bus_name = uDisk.cap(0);
-			emit deviceAdded(bus_name);
-			qDebug("Add: %s", qPrintable(bus_name));
+			emit deviceAdded(bus_name = uDisk.cap(0));
 		} else if (sdCard.indexIn(line)!=-1) {
-			bus_name = sdCard.cap(1);
-			emit deviceAdded(bus_name);
-			qDebug("Add: %s", qPrintable(bus_name));
+			emit deviceAdded(bus_name = sdCard.cap(1));
 		}
-		qDebug("Add bus: %s", qPrintable(bus_name));
 	} else if (line.startsWith(remove_str)) {
+		action_str = "Remove";
 		if (uDisk.indexIn(line)!=-1) {
-			bus_name = uDisk.cap(0); //?
-			emit deviceAdded(bus_name);
-			qDebug("Remove: %s", qPrintable(bus_name));
+			emit deviceRemoved(bus_name = uDisk.cap(0));
 		} else if (sdCard.indexIn(line)!=-1) {
-			bus_name = sdCard.cap(1);
-			emit deviceAdded(bus_name);
-			qDebug("Remove: %s", qPrintable(bus_name));
+			emit deviceRemoved(bus_name = sdCard.cap(1));
 		}
-		qDebug("Remove bus: %s", qPrintable(bus_name));
 	} else if (line.startsWith(change_str)) {
+		action_str = "Change";
 		if (uDisk.indexIn(line)!=-1) {
-			bus_name = uDisk.cap(0); //?
-			emit deviceChanged(bus_name);
-			qDebug("Change: %s", qPrintable(bus_name));
+			emit deviceChanged(bus_name = uDisk.cap(0));
 		} else if (sdCard.indexIn(line)!=-1) {
-			bus_name = sdCard.cap(1);
-			emit deviceChanged(bus_name);
-			qDebug("Change: %s", qPrintable(bus_name));
+			emit deviceChanged(bus_name = sdCard.cap(1));
 		}
-		qDebug("Change bus: %s", qPrintable(bus_name));
 	}
+	qDebug("%s: %s", action_str, qPrintable(bus_name));
 }
 
 //#endif //Q_OS_LINUX
