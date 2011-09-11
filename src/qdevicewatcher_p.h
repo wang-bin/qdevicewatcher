@@ -24,6 +24,13 @@
 #define CONFIG_TCPSOCKET 0  //QtNetwork
 #define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
 
+//#define QT_NO_DEBUG_OUTPUT 0
+#define CONFIG_DEBUG 1
+#if CONFIG_DEBUG
+#define zDebug(fmt, ...) qDebug(""#fmt, ##__VA_ARGS__)
+#else
+#define zDebug(fmt, ...)
+#endif //CONFIG_DEBUG
 
 #if CONFIG_THREAD
 #include <QtCore/QThread>
