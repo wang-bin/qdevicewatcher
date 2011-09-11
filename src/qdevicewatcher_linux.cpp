@@ -102,7 +102,7 @@ bool QDeviceWatcherPrivate::init()
 
 
 void QDeviceWatcherPrivate::parseDeviceInfo()
-{//qDebug("%s active", qPrintable(QTime::currentTime().toString()));
+{//zDebug("%s active", qPrintable(QTime::currentTime().toString()));
 #if CONFIG_SOCKETNOTIFIER
 	QSocketNotifier *sn = qobject_cast<QSocketNotifier*>(sender());
 	//sn->setEnabled(false); //for win
@@ -167,7 +167,7 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 			emit deviceChanged(bus_name = sdCard.cap(1));
 		}
 	}
-	qDebug("%s: %s", action_str, qPrintable(bus_name));
+	zDebug("%s: %s", action_str, qPrintable(bus_name));
 }
 
 //#endif //Q_OS_LINUX

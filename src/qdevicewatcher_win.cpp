@@ -30,8 +30,6 @@
 #  define DBT_CUSTOMEVENT 0x8006
 #endif
 
-#define QDRIVECONTROLLER_DEBUG 1
-
 Q_CORE_EXPORT HINSTANCE qWinAppInst();
 
 static inline QStringList drivesFromMask(quint32 driveBits)
@@ -39,12 +37,12 @@ static inline QStringList drivesFromMask(quint32 driveBits)
 		QStringList ret;
 
 		char driveName[] = "A:/";
-		driveBits = (driveBits & 0x3ffffff);
+		driveBits &= 0x3ffffff;
 		while (driveBits) {
 			if (driveBits & 0x1)
 				ret.append(QString::fromLatin1(driveName));
 			++driveName[0];
-			driveBits = driveBits >> 1;
+			driveBits >>= 1;
 		}
 
 		return ret;
@@ -56,25 +54,16 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 		DEV_BROADCAST_HDR *lpdb = (DEV_BROADCAST_HDR *)lParam;
 		switch (wParam) {
 		case DBT_DEVNODES_CHANGED:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_DEVNODES_CHANGED message received, no extended info.");
-#endif
+			zDebug("DBT_DEVNODES_CHANGED message received, no extended info.");
 			break;
-
 		case DBT_QUERYCHANGECONFIG:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_QUERYCHANGECONFIG message received, no extended info.");
-#endif
+			zDebug("DBT_QUERYCHANGECONFIG message received, no extended info.");
 			break;
 		case DBT_CONFIGCHANGED:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_CONFIGCHANGED message received, no extended info.");
-#endif
+			zDebug("DBT_CONFIGCHANGED message received, no extended info.");
 			break;
 		case DBT_CONFIGCHANGECANCELED:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_CONFIGCHANGECANCELED message received, no extended info.");
-#endif
+			zDebug("DBT_CONFIGCHANGECANCELED message received, no extended info.");
 			break;
 
 		case DBT_DEVICEARRIVAL:
@@ -93,14 +82,12 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 				if (wParam == DBT_DEVICEARRIVAL) {
 					foreach (const QString &drive, drives) {
-#ifdef QDRIVECONTROLLER_DEBUG
 						if (db_volume->dbcv_flags & DBTF_MEDIA)
-							qWarning("Drive %c: Media has been arrived.", drive.at(0).toAscii());
+							zDebug("Drive %c: Media has been arrived.", drive.at(0).toAscii());
 						else if (db_volume->dbcv_flags & DBTF_NET)
-							qWarning("Drive %c: Network share has been mounted.", drive.at(0).toAscii());
+							zDebug("Drive %c: Network share has been mounted.", drive.at(0).toAscii());
 						else
-							qWarning("Drive %c: Device has been added.", drive.at(0).toAscii());
-#endif
+							zDebug("Drive %c: Device has been added.", drive.at(0).toAscii());
 						watcher->emitDeviceAdded(drive);
 					}
 				} else if (wParam == DBT_DEVICEQUERYREMOVE) {
@@ -108,39 +95,28 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				} else if (wParam == DBT_DEVICEREMOVEPENDING) {
 				} else if (wParam == DBT_DEVICEREMOVECOMPLETE) {
 					foreach (const QString &drive, drives) {
-#ifdef QDRIVECONTROLLER_DEBUG
 						if (db_volume->dbcv_flags & DBTF_MEDIA)
-							qWarning("Drive %c: Media has been removed.", drive.at(0).toAscii());
+							zDebug("Drive %c: Media has been removed.", drive.at(0).toAscii());
 						else if (db_volume->dbcv_flags & DBTF_NET)
-							qWarning("Drive %c: Network share has been unmounted.", drive.at(0).toAscii());
+							zDebug("Drive %c: Network share has been unmounted.", drive.at(0).toAscii());
 						else
-							qWarning("Drive %c: Device has been removed.", drive.at(0).toAscii());
-#endif
+							zDebug("Drive %c: Device has been removed.", drive.at(0).toAscii());
 						watcher->emitDeviceRemoved(drive);
 					}
 				}
 			}
 			break;
 		case DBT_DEVICETYPESPECIFIC:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_DEVICETYPESPECIFIC message received, may contain an extended info.");
-#endif
+			zDebug("DBT_DEVICETYPESPECIFIC message received, may contain an extended info.");
 			break;
 		case DBT_CUSTOMEVENT:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("DBT_CUSTOMEVENT message received, contains an extended info.");
-#endif
+			zDebug("DBT_CUSTOMEVENT message received, contains an extended info.");
 			break;
 		case DBT_USERDEFINED:
-#ifdef QDRIVECONTROLLER_DEBUG
-			qWarning("WM_DEVICECHANGE user defined message received, can not handle.");
-#endif
+			zDebug("WM_DEVICECHANGE user defined message received, can not handle.");
 			break;
-
 		default:
-#ifdef QDRIVECONTROLLER_DEBUG
 			qWarning("WM_DEVICECHANGE message received, unhandled value %d.", wParam);
-#endif
 			break;
 		}
 	}
@@ -215,4 +191,8 @@ bool QDeviceWatcherPrivate::init()
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 	dw_destroy_internal_window(hwnd);
+}
+
+void QDeviceWatcherPrivate::parseDeviceInfo()
+{
 }
