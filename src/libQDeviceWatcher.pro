@@ -1,6 +1,7 @@
 TEMPLATE = lib
 #QT += network
 QT -= gui
+CONFIG += staticlib
 
 TARGET = QDeviceWatcher
 
@@ -10,7 +11,8 @@ DESTDIR=$$replace(DESTDIR, $${DESTDIR}, ../$${DESTDIR})
 unix {
     SOURCES += qdevicewatcher_linux.cpp
 } else:win32 {
-        SOURCES += qdevicewatcher_win.cpp
+    LIBS += -lUser32
+    SOURCES += qdevicewatcher_win.cpp
 }
 
 SOURCES += qdevicewatcher.cpp
