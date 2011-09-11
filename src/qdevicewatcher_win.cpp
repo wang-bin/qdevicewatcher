@@ -155,7 +155,7 @@ static inline HWND dw_create_internal_window(const void* userData)
 							 hi,                     // application
 							 0);                     // windows creation data.
 	if (!hwnd) {
-		qWarning("QUsbWatcherPrivateEngine: Failed to create internal window: %d", (int)GetLastError());
+		qWarning("QDeviceWatcherPrivate: Failed to create internal window: %d", (int)GetLastError());
 	} else if (userData) {
 #ifdef GWLP_USERDATA
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)userData);
