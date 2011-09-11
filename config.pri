@@ -1,3 +1,7 @@
+#Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+#Shanghai, China.
+#GPL v2
+
 CONFIG += #ezx#static ezx
 CONFIG += profile
 #profiling, -pg is not supported for msvc
