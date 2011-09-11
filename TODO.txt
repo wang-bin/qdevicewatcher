@@ -1,9 +1,6 @@
-rename QHotPlug?
 input device
 windows and other platforms. See QDrive
-watch /etc/mtab
+watch /etc/mtab for linux 2.4
 
-enum DeviceType
-QDeviceWatcher::isMounted()
-signal mounted()
-signal umounted()
+QDeviceWathcer::start(), stop()
+
