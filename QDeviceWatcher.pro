@@ -7,7 +7,8 @@ test.depends += libqdevicewatcher
 
 
 OTHER_FILES += \
-    TODO.txt
+    TODO.txt \
+    README
 
 
 

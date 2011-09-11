@@ -1,0 +1,4 @@
+Can detect usb add and remove event.
+Tested on linux and windows(mingw and msvc)
+
+Thanks qdrive project: https://gitorious.org/qdrive/qdrive
