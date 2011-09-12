@@ -33,6 +33,9 @@ public:
 	explicit QDeviceWatcher(QObject *parent = 0);
 	~QDeviceWatcher();
 
+	bool start();
+	bool stop();
+
 signals:
 	void deviceAdded(const QString& dev);
 	void deviceChanged(const QString& dev); //when umounting the device

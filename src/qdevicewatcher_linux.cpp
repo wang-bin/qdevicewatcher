@@ -18,9 +18,6 @@
 ******************************************************************************/
 
 #include "qdevicewatcher_p.h"
-
-
-
 //#ifdef Q_OS_LINUX
 
 #include <stdio.h>
@@ -35,7 +32,17 @@
 #include <errno.h>
 #include <unistd.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+#endif
+
+
 #include <QtCore/QRegExp>
+#if CONFIG_SOCKETNOTIFIER
+#include <QtCore/QSocketNotifier>
+#elif CONFIG_TCPSOCKET
+#include <QtNetwork/QTcpSocket>
+#endif
+
 
 #define UEVENT_BUFFER_SIZE      2048
 
@@ -43,59 +50,32 @@ const QByteArray add_str = "add@/devices/pci0000:00/";
 const QByteArray remove_str = "remove@/devices/pci0000:00/";
 const QByteArray change_str = "change@/devices/pci0000:00/";
 
-#if CONFIG_SOCKETNOTIFIER
-#include <QtCore/QSocketNotifier>
-#include <QtCore/QFile>
-#elif CONFIG_TCPSOCKET
-#include <QtNetwork/QTcpSocket>
-#endif
-
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
+	stop();
+	close(netlink_socket);
+	netlink_socket = -1;
 }
 
-bool QDeviceWatcherPrivate::init()
+bool QDeviceWatcherPrivate::start()
 {
-	struct sockaddr_nl snl;
-	const int buffersize = 16 * 1024 * 1024;
-	int retval;
-
-	memset(&snl, 0x00, sizeof(struct sockaddr_nl));
-	snl.nl_family = AF_NETLINK;
-	snl.nl_pid = getpid();
-	snl.nl_groups = 1;
-
-	hotplug_sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
-	if (hotplug_sock == -1) {
-		qWarning("error getting socket: %s", strerror(errno));
-		return false;
-	}
-
-	/* set receive buffersize */
-	setsockopt(hotplug_sock, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize));
-	retval = bind(hotplug_sock, (struct sockaddr*) &snl, sizeof(struct sockaddr_nl));
-	if (retval < 0) {
-		qWarning("bind failed: %s", strerror(errno));
-		close(hotplug_sock);
-		hotplug_sock = -1;
-		return false;
-	}
-
 #if CONFIG_SOCKETNOTIFIER
-	QSocketNotifier *sn = new QSocketNotifier(hotplug_sock, QSocketNotifier::Read, this);
-	connect(sn, SIGNAL(activated(int)), SLOT(parseDeviceInfo())); //will always active
+	socket_notifier->setEnabled(true);
 #elif CONFIG_TCPSOCKET
-	//QAbstractSocket *socket = new QAbstractSocket(QAbstractSocket::UnknownSocketType, this); //will not detect "remove", why?
-	QTcpSocket *socket = new QTcpSocket(this); //works too
-	if (!socket->setSocketDescriptor(hotplug_sock, QAbstractSocket::ConnectedState)) {
-		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(socket->errorString()));
-		delete socket;
-		start();
-		return false;
-	}
 	connect(socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
 #else
-	start();
+	this->QThread::start();
+#endif
+}
+
+bool QDeviceWatcherPrivate::stop()
+{
+#if CONFIG_SOCKETNOTIFIER
+	socket_notifier->setEnabled(false);
+#elif CONFIG_TCPSOCKET
+	disconnect(socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
+#else
+	this->QThread::stop();
 #endif
 	return true;
 }
@@ -104,13 +84,12 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseDeviceInfo()
 {//zDebug("%s active", qPrintable(QTime::currentTime().toString()));
 #if CONFIG_SOCKETNOTIFIER
-	QSocketNotifier *sn = qobject_cast<QSocketNotifier*>(sender());
-	//sn->setEnabled(false); //for win
+	//socket_notifier->setEnabled(false); //for win
 	QByteArray line;
 	line.resize(UEVENT_BUFFER_SIZE*2);
-	read(sn->socket(), line.data(), UEVENT_BUFFER_SIZE*2);
+	read(socket_notifier->socket(), line.data(), UEVENT_BUFFER_SIZE*2);
 	parseLine(line);
-	//sn->setEnabled(true); //for win
+	//socket_notifier->setEnabled(true); //for win
 #elif CONFIG_TCPSOCKET
 	QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(sender());
 	QByteArray line = socket->readAll();
@@ -129,13 +108,57 @@ void QDeviceWatcherPrivate::run()
 	//loop only when event happens. because of recv() block the function?
 	while (1) {
 		//char buf[UEVENT_BUFFER_SIZE*2] = {0};
-		//recv(d->hotplug_sock, &buf, sizeof(buf), 0);
+		//recv(d->netlink_socket, &buf, sizeof(buf), 0);
 		line.fill(0);
-		recv(hotplug_sock, line.data(), line.size(), 0);
+		recv(netlink_socket, line.data(), line.size(), 0);
 		parseLine(line);
 	}
 }
 #endif //CONFIG_THREAD
+
+bool QDeviceWatcherPrivate::init()
+{
+	struct sockaddr_nl snl;
+	const int buffersize = 16 * 1024 * 1024;
+	int retval;
+
+	memset(&snl, 0x00, sizeof(struct sockaddr_nl));
+	snl.nl_family = AF_NETLINK;
+	snl.nl_pid = getpid();
+	snl.nl_groups = 1;
+
+	netlink_socket = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
+	if (netlink_socket == -1) {
+		qWarning("error getting socket: %s", strerror(errno));
+		return false;
+	}
+
+	/* set receive buffersize */
+	setsockopt(netlink_socket, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize));
+	retval = bind(netlink_socket, (struct sockaddr*) &snl, sizeof(struct sockaddr_nl));
+	if (retval < 0) {
+		qWarning("bind failed: %s", strerror(errno));
+		close(netlink_socket);
+		netlink_socket = -1;
+		return false;
+	}
+
+#if CONFIG_SOCKETNOTIFIER
+	socket_notifier = new QSocketNotifier(netlink_socket, QSocketNotifier::Read, this);
+	connect(socket_notifier, SIGNAL(activated(int)), SLOT(parseDeviceInfo())); //will always active
+	socket_notifier->setEnabled(false);
+#elif CONFIG_TCPSOCKET
+	//QAbstractSocket *socket = new QAbstractSocket(QAbstractSocket::UnknownSocketType, this); //will not detect "remove", why?
+	QTcpSocket *socket = new QTcpSocket(this); //works too
+	if (!socket->setSocketDescriptor(netlink_socket, QAbstractSocket::ConnectedState)) {
+		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(socket->errorString()));
+		delete socket;
+		start();
+		return false;
+	}
+#endif
+	return true;
+}
 
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {

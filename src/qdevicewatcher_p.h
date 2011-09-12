@@ -51,17 +51,19 @@ class QDeviceWatcherPrivate
 {
 	Q_OBJECT
 public:
-	QDeviceWatcherPrivate(QObject *parent = 0)
+	QDeviceWatcherPrivate(QObject *parent = 0) :
 #if CONFIG_THREAD
-	: QThread(parent)
+	QThread(parent)
 #else
-	: QObject(parent)
+	QObject(parent)
 #endif //CONFIG_THREAD
 	{
 		init();
 	}
-
 	~QDeviceWatcherPrivate();
+
+	bool start();
+	bool stop();
 
 	inline void emitDeviceAdded(const QString& dev) {emit deviceAdded(dev);}
 	inline void emitDeviceChanged(const QString& dev) {emit deviceChanged(dev);}
@@ -77,12 +79,14 @@ private slots:
 
 private:
 	bool init();
-
 #if defined(Q_OS_LINUX)
+	void parseLine(const QByteArray& line);
 #if CONFIG_THREAD
 	virtual void run();
+#elif CONFIG_SOCKETNOTIFIER
+	class QSocketNotifier;
+	QSocketNotifier *socket_notifier;
 #endif
-	void parseLine(const QByteArray& line);
 
 	QString bus_name;
 	int hotplug_sock;

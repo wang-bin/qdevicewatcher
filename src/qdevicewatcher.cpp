@@ -36,3 +36,19 @@ QDeviceWatcher::~QDeviceWatcher()
 		d_ptr = NULL;
 	}
 }
+
+bool QDeviceWatcher::start()
+{
+	Q_D(QDeviceWatcher);
+	if (!d->start()) {
+		stop();
+		return false;
+	}
+	return true;
+}
+
+bool QDeviceWatcher::stop()
+{
+	Q_D(QDeviceWatcher);
+	return d->stop();
+}

@@ -177,8 +177,12 @@ static inline void dw_destroy_internal_window(HWND hwnd)
 
 
 
+QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
+{
+	stop();
+}
 
-bool QDeviceWatcherPrivate::init()
+bool QDeviceWatcherPrivate::start()
 {
 	hwnd = dw_create_internal_window(this);
 
@@ -188,9 +192,15 @@ bool QDeviceWatcherPrivate::init()
 	return hwnd;
 }
 
-QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
+bool QDeviceWatcherPrivate::stop()
 {
 	dw_destroy_internal_window(hwnd);
+	return true;
+}
+
+bool QDeviceWatcherPrivate::init()
+{
+	return true;
 }
 
 void QDeviceWatcherPrivate::parseDeviceInfo()

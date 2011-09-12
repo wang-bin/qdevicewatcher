@@ -35,6 +35,7 @@ public:
 		watcher = new QDeviceWatcher(this);
 		connect(watcher, SIGNAL(deviceAdded(QString)), SLOT(slotDeviceAdded(QString)));
 		connect(watcher, SIGNAL(deviceRemoved(QString)), SLOT(slotDeviceRemoved(QString)));
+		watcher->start();
 	}
 
 public slots:
