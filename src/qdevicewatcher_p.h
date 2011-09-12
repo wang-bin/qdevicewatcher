@@ -20,6 +20,9 @@
 #ifndef QDEVICEWATCHER_P_H
 #define QDEVICEWATCHER_P_H
 
+/*!
+  Usually we use CONFIG_SOCKETNOTIFIER. CONFIG_TCPSOCKET and CONFIG_THREAD are test case
+*/
 #define CONFIG_SOCKETNOTIFIER 1
 #define CONFIG_TCPSOCKET 0  //QtNetwork
 #define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
@@ -83,13 +86,14 @@ private:
 	void parseLine(const QByteArray& line);
 #if CONFIG_THREAD
 	virtual void run();
+#elif CONFIG_TCPSOCKET
+	class QTcpSocket *tcp_socket;
 #elif CONFIG_SOCKETNOTIFIER
-	class QSocketNotifier;
-	QSocketNotifier *socket_notifier;
+	class QSocketNotifier *socket_notifier;
 #endif
 
 	QString bus_name;
-	int hotplug_sock;
+	int netlink_socket;
 #elif defined(Q_OS_WIN)
 	HWND hwnd;
 #endif

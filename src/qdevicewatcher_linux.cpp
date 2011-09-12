@@ -24,6 +24,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+#else
+
+#endif
+
 #include <sys/un.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -31,10 +38,6 @@
 #include <linux/netlink.h>
 #include <errno.h>
 #include <unistd.h>
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
-#endif
-
 
 #include <QtCore/QRegExp>
 #if CONFIG_SOCKETNOTIFIER
@@ -62,10 +65,11 @@ bool QDeviceWatcherPrivate::start()
 #if CONFIG_SOCKETNOTIFIER
 	socket_notifier->setEnabled(true);
 #elif CONFIG_TCPSOCKET
-	connect(socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
+	connect(tcp_socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
 #else
 	this->QThread::start();
 #endif
+	return true;
 }
 
 bool QDeviceWatcherPrivate::stop()
@@ -73,9 +77,10 @@ bool QDeviceWatcherPrivate::stop()
 #if CONFIG_SOCKETNOTIFIER
 	socket_notifier->setEnabled(false);
 #elif CONFIG_TCPSOCKET
-	disconnect(socket, SIGNAL(readyRead()), SLOT(parseDeviceInfo()));
+	//tcp_socket->close(); //how to restart?
+	disconnect(this, SLOT(parseDeviceInfo()));
 #else
-	this->QThread::stop();
+	this->quit();
 #endif
 	return true;
 }
@@ -91,8 +96,7 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	parseLine(line);
 	//socket_notifier->setEnabled(true); //for win
 #elif CONFIG_TCPSOCKET
-	QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(sender());
-	QByteArray line = socket->readAll();
+	QByteArray line = tcp_socket->readAll();
 	parseLine(line);
 #else
 #endif
@@ -149,11 +153,10 @@ bool QDeviceWatcherPrivate::init()
 	socket_notifier->setEnabled(false);
 #elif CONFIG_TCPSOCKET
 	//QAbstractSocket *socket = new QAbstractSocket(QAbstractSocket::UnknownSocketType, this); //will not detect "remove", why?
-	QTcpSocket *socket = new QTcpSocket(this); //works too
-	if (!socket->setSocketDescriptor(netlink_socket, QAbstractSocket::ConnectedState)) {
-		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(socket->errorString()));
-		delete socket;
-		start();
+	tcp_socket = new QTcpSocket(this); //works too
+	if (!tcp_socket->setSocketDescriptor(netlink_socket, QAbstractSocket::ConnectedState)) {
+		qWarning("Failed to assign native socket to QAbstractSocket: %s", qPrintable(tcp_socket->errorString()));
+		delete tcp_socket;
 		return false;
 	}
 #endif
@@ -165,7 +168,7 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");
 	static QRegExp sdCard("mmcblk[0-9][b-z][0-9]*$");
-	char* action_str;
+	const char* action_str = 0;
 
 	bus_name = line.right(line.length()-line.lastIndexOf('/')-1);
 	if (line.startsWith(add_str)) {
@@ -189,6 +192,8 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 		} else if (sdCard.indexIn(line)!=-1) {
 			emit deviceChanged(bus_name = sdCard.cap(1));
 		}
+	} else{
+		bus_name = line;
 	}
 	zDebug("%s: %s", action_str, qPrintable(bus_name));
 }

@@ -1,4 +1,5 @@
 TEMPLATE = app
+#QT += network
 CONFIG   += console
 CONFIG   -= app_bundle
 

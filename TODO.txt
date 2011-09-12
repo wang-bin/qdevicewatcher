@@ -2,5 +2,4 @@ input device
 windows and other platforms. See QDrive
 watch /etc/mtab for linux 2.4
 
-QDeviceWathcer::start(), stop()
 
