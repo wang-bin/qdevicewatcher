@@ -39,7 +39,6 @@ contains(QT_ARCH, arm.*) {
   ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
 }
 *64:   ARCH_EXT = $${ARCH_EXT}_x64
-
 *llvm*: TOOLCHAIN_EXT = _llvm
 #*msvc*:
 

@@ -49,9 +49,9 @@
 
 #define UEVENT_BUFFER_SIZE      2048
 
-const QByteArray add_str = "add@/devices/pci0000:00/";
-const QByteArray remove_str = "remove@/devices/pci0000:00/";
-const QByteArray change_str = "change@/devices/pci0000:00/";
+const QByteArray add_str = "add@";
+const QByteArray remove_str = "remove@";
+const QByteArray change_str = "change@";
 
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
