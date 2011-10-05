@@ -15,8 +15,12 @@ unix {
     SOURCES += qdevicewatcher_win.cpp
 }
 
-SOURCES += qdevicewatcher.cpp
+SOURCES += qdevicewatcher.cpp \
+    qdevicechangeevent.cpp
 
 HEADERS += \
     qdevicewatcher_p.h \
-    qdevicewatcher.h
+    qdevicewatcher.h \
+    qdevicechangeevent.h
+
+
