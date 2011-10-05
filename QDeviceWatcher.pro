@@ -10,18 +10,3 @@ OTHER_FILES += \
     TODO.txt \
     README
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
