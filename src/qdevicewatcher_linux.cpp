@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
 #if CONFIG_SOCKETNOTIFIER
 #include <QtCore/QSocketNotifier>
@@ -46,6 +47,7 @@
 #include <QtNetwork/QTcpSocket>
 #endif
 
+#include "qdevicechangeevent.h"
 
 #define UEVENT_BUFFER_SIZE      2048
 
@@ -165,6 +167,7 @@ bool QDeviceWatcherPrivate::init()
 
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
+	QDeviceChangeEvent *event = 0;
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");
 	static QRegExp sdCard("mmcblk[0-9][b-z][0-9]*$");
@@ -174,28 +177,47 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	if (line.startsWith(add_str)) {
 		action_str = "Add";
 		if (uDisk.indexIn(line)!=-1) { //not exactMatch()?
-			emit deviceAdded(bus_name = uDisk.cap(0));
+			emit deviceAdded(bus_name = "/dev/" + uDisk.cap(0));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, bus_name);
 		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceAdded(bus_name = sdCard.cap(1));
+			emit deviceAdded(bus_name = "/dev/" + sdCard.cap(1));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, bus_name);
 		}
 	} else if (line.startsWith(remove_str)) {
 		action_str = "Remove";
 		if (uDisk.indexIn(line)!=-1) {
-			emit deviceRemoved(bus_name = uDisk.cap(0));
+			emit deviceRemoved(bus_name = "/dev/" + uDisk.cap(0));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, bus_name);
 		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceRemoved(bus_name = sdCard.cap(1));
+			emit deviceRemoved(bus_name = "/dev/" + sdCard.cap(1));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, bus_name);
 		}
 	} else if (line.startsWith(change_str)) {
 		action_str = "Change";
 		if (uDisk.indexIn(line)!=-1) {
-			emit deviceChanged(bus_name = uDisk.cap(0));
+			emit deviceChanged(bus_name = "/dev/" + uDisk.cap(0));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, bus_name);
 		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceChanged(bus_name = sdCard.cap(1));
+			emit deviceChanged(bus_name = "/dev/" + sdCard.cap(1));
+			if (!event_receivers.isEmpty())
+				event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, bus_name);
 		}
 	} else{
 		bus_name = line;
 	}
+
 	zDebug("%s: %s", action_str, qPrintable(bus_name));
+
+	if (event != 0 && !event_receivers.isEmpty()) {
+		foreach(QObject* obj, event_receivers) {
+			QCoreApplication::postEvent(obj, event, Qt::HighEventPriority);
+		}
+	}
 }
 
 //#endif //Q_OS_LINUX

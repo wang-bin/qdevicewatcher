@@ -21,26 +21,51 @@
 #define HOTPLUGWATCHER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QThread>
 #include "qdevicewatcher.h"
+#include "qdevicechangeevent.h"
 
 #ifndef __GNUC__
 #define __PRETTY_FUNCTION__  __FUNCTION__
 #endif
 
-class HotplugWatcher : public QObject
+class HotplugWatcher : public QThread
 {
 	Q_OBJECT
 public:
-	HotplugWatcher(QObject *parent = 0):QObject(parent) {
-		watcher = new QDeviceWatcher(this);
-		connect(watcher, SIGNAL(deviceAdded(QString)), SLOT(slotDeviceAdded(QString)));
-		connect(watcher, SIGNAL(deviceRemoved(QString)), SLOT(slotDeviceRemoved(QString)));
+	HotplugWatcher(QObject *parent = 0):QThread(parent) {
+		qDebug("tid=%#x %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__);
+		start();
+
+		moveToThread(this); //Let bool event(QEvent *e) be in another thread
+		watcher = new QDeviceWatcher;
+		watcher->moveToThread(this);
+		watcher->appendEventReceiver(this);
+		connect(watcher, SIGNAL(deviceAdded(QString)), this, SLOT(slotDeviceAdded(QString)), Qt::DirectConnection);
+		connect(watcher, SIGNAL(deviceRemoved(QString)), this, SLOT(slotDeviceRemoved(QString)), Qt::DirectConnection);
 		watcher->start();
 	}
 
 public slots:
-	void slotDeviceAdded(const QString& dev) { qDebug("%s: add %s", __PRETTY_FUNCTION__, qPrintable(dev));}
-	void slotDeviceRemoved(const QString& dev) { qDebug("%s: remove %s", __PRETTY_FUNCTION__, qPrintable(dev));}
+	void slotDeviceAdded(const QString& dev) { qDebug("tid=%#x %s: add %s", (unsigned int) QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+	void slotDeviceRemoved(const QString& dev) { qDebug("tid=%#x %s: remove %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+
+protected:
+	virtual bool event(QEvent *e) {
+		if (e->type() == QDeviceChangeEvent::EventType) {
+			QDeviceChangeEvent *event = (QDeviceChangeEvent*)e;
+			QString action("Change");
+			if (event->action() == QDeviceChangeEvent::Add)
+				action = "Add";
+			else if (event->action() == QDeviceChangeEvent::Remove)
+				action = "Remove";
+
+			qDebug("tid=%#x event=%d %s: %s %s", (unsigned int)QThread::currentThreadId(), e->type(), __PRETTY_FUNCTION__, qPrintable(action), qPrintable(event->device()));
+			event->accept();
+			return true;
+		}
+		return QObject::event(e);
+	}
 
 private:
 	QDeviceWatcher *watcher;

@@ -21,6 +21,9 @@
 #include "qdevicewatcher_p.h"
 
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
+
+#include "qdevicechangeevent.h"
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
@@ -80,6 +83,7 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				QDeviceWatcherPrivate *watcher = (QDeviceWatcherPrivate *)GetWindowLong(hwnd, GWL_USERDATA);
 #endif
 
+				QDeviceChangeEvent *event = 0;
 				if (wParam == DBT_DEVICEARRIVAL) {
 					foreach (const QString &drive, drives) {
 						if (db_volume->dbcv_flags & DBTF_MEDIA)
@@ -89,6 +93,8 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 						else
 							zDebug("Drive %c: Device has been added.", drive.at(0).toAscii());
 						watcher->emitDeviceAdded(drive);
+						if (!watcher->event_receivers.isEmpty())
+							event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, drive);
 					}
 				} else if (wParam == DBT_DEVICEQUERYREMOVE) {
 				} else if (wParam == DBT_DEVICEQUERYREMOVEFAILED) {
@@ -102,6 +108,13 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 						else
 							zDebug("Drive %c: Device has been removed.", drive.at(0).toAscii());
 						watcher->emitDeviceRemoved(drive);
+						if (!watcher->event_receivers.isEmpty())
+							event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, drive);
+					}
+				}
+				if (event != 0 && !watcher->event_receivers.isEmpty()) {
+					foreach(QObject* obj, watcher->event_receivers) {
+						QCoreApplication::postEvent(obj, event, Qt::HighEventPriority);
 					}
 				}
 			}

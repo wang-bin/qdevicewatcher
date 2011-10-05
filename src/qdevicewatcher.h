@@ -36,6 +36,8 @@ public:
 	bool start();
 	bool stop();
 
+	void appendEventReceiver(QObject* receiver);
+
 signals:
 	void deviceAdded(const QString& dev);
 	void deviceChanged(const QString& dev); //when umounting the device

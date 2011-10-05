@@ -35,6 +35,7 @@
 #define zDebug(fmt, ...)
 #endif //CONFIG_DEBUG
 
+#include <QtCore/QList>
 #if CONFIG_THREAD
 #include <QtCore/QThread>
 #else
@@ -72,6 +73,7 @@ public:
 	inline void emitDeviceChanged(const QString& dev) {emit deviceChanged(dev);}
 	inline void emitDeviceRemoved(const QString& dev) {emit deviceRemoved(dev);}
 
+	QList<QObject*> event_receivers;
 signals:
 	void deviceAdded(const QString& dev);
 	void deviceChanged(const QString& dev); //Linux: when umounting the device

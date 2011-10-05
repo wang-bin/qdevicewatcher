@@ -52,3 +52,9 @@ bool QDeviceWatcher::stop()
 	Q_D(QDeviceWatcher);
 	return d->stop();
 }
+
+void QDeviceWatcher::appendEventReceiver(QObject *receiver)
+{
+	Q_D(QDeviceWatcher);
+	d->event_receivers.append(receiver);
+}
