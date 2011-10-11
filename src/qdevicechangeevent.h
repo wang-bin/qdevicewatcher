@@ -28,12 +28,17 @@ class QDeviceChangeEvent : public QEvent
 	Q_ENUMS(Action)
 public:
 	enum Action { Add, Remove, Change};
-	static int EventType;
+	//static const Type EventType; //VC link error
 
 	explicit QDeviceChangeEvent(Action action, const QString& device);
 
 	Action action() const {return m_action;}
 	QString device() const {return m_device;}
+	static Type registeredType()
+	{
+		static Type EventType = static_cast<Type>(registerEventType());
+		return EventType;
+	}
 
 private:
 	Action m_action;

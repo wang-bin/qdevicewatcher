@@ -59,3 +59,33 @@ UI_DIR  = .ui/$${QT_VERSION}
 
 #unix: QMAKE_POST_LINK=strip $(TARGET)
 !build_pass:message(target: $$DESTDIR/$$TARGET)
+
+
+defineReplace(qtLibraryName) {
+   unset(LIBRARY_NAME)
+   LIBRARY_NAME = $$1
+   CONFIG(debug, debug|release) {
+	  !debug_and_release|build_pass {
+		  mac:RET = $$member(LIBRARY_NAME, 0)_debug
+			  else:win32:RET = $$member(LIBRARY_NAME, 0)d
+	  }
+   }
+   isEmpty(RET):RET = $$LIBRARY_NAME
+   return($$RET)
+}
+
+defineReplace(qtStaticLib) {
+	unset(LIB_FULLNAME)
+	LIB_FULLNAME = $$qtLibraryName($$1)
+	*msvc*: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).lib
+	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).a
+	return($$LIB_FULLNAME)
+}
+
+defineReplace(qtSharedLib) {
+	unset(LIB_FULLNAME)
+	LIB_FULLNAME = $$qtLibraryName($$1)
+	win32: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).dll
+	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).so
+	return($$LIB_FULLNAME)
+}

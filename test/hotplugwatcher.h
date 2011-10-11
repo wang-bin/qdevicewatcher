@@ -52,7 +52,7 @@ public slots:
 
 protected:
 	virtual bool event(QEvent *e) {
-		if (e->type() == QDeviceChangeEvent::EventType) {
+		if (e->type() == QDeviceChangeEvent::registeredType()) {
 			QDeviceChangeEvent *event = (QDeviceChangeEvent*)e;
 			QString action("Change");
 			if (event->action() == QDeviceChangeEvent::Add)
