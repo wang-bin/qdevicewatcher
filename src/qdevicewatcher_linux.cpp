@@ -56,11 +56,11 @@ enum udev_monitor_netlink_group {
 	UDEV_MONITOR_KERNEL,
 	UDEV_MONITOR_UDEV
 };
-
+/*
 const QByteArray add_str = "add@";
 const QByteArray remove_str = "remove@";
 const QByteArray change_str = "change@";
-
+*/
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 	stop();
@@ -210,8 +210,8 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	zDebug("kernel: %s", line.constData());
-	QDeviceChangeEvent *event = 0;
 	//(add)(?:.*/block/)(.*)
+	/*
 	static QRegExp uDisk("sd[a-z][0-9]*$");
 	static QRegExp sdCard("mmcblk[0-9][b-z][0-9]*$");
 	const char* action_str = 0;
@@ -253,8 +253,26 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	} else{
 		bus_name = line;
 	}
+	*/
+	if (!line.contains("/block/"))
+		return;
 
-	zDebug("%s: %s", action_str, qPrintable(bus_name));
+	QString action_str = line.left(line.indexOf('@')).toLower();
+	QString dev = "/dev/" + line.right(line.length() - line.lastIndexOf('/') - 1);
+	QDeviceChangeEvent *event = 0;
+
+	if (action_str==QLatin1String("add")) {
+		emit deviceAdded(dev);
+		event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, dev);
+	} else if (action_str==QLatin1String("remove")) {
+		emit deviceRemoved(dev);
+		event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, dev);
+	} else {
+		emit deviceChanged(dev);
+		event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, dev);
+	}
+
+	zDebug("%s: %s %s", __FUNCTION__, qPrintable(action_str), qPrintable(dev));
 
 	if (event != 0 && !event_receivers.isEmpty()) {
 		foreach(QObject* obj, event_receivers) {
