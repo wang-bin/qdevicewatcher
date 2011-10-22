@@ -198,6 +198,7 @@ QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 
 bool QDeviceWatcherPrivate::start()
 {
+	init();
 	hwnd = dw_create_internal_window(this);
 
 	if (!hwnd) {
