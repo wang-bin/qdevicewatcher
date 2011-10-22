@@ -51,6 +51,12 @@
 
 #define UEVENT_BUFFER_SIZE      2048
 
+enum udev_monitor_netlink_group {
+	UDEV_MONITOR_NONE,
+	UDEV_MONITOR_KERNEL,
+	UDEV_MONITOR_UDEV
+};
+
 const QByteArray add_str = "add@";
 const QByteArray remove_str = "remove@";
 const QByteArray change_str = "change@";
@@ -64,6 +70,8 @@ QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 
 bool QDeviceWatcherPrivate::start()
 {
+	if (!init())
+		return false;
 #if CONFIG_SOCKETNOTIFIER
 	socket_notifier->setEnabled(true);
 #elif CONFIG_TCPSOCKET
@@ -76,14 +84,18 @@ bool QDeviceWatcherPrivate::start()
 
 bool QDeviceWatcherPrivate::stop()
 {
+	if (netlink_socket!=-1) {
 #if CONFIG_SOCKETNOTIFIER
-	socket_notifier->setEnabled(false);
+		socket_notifier->setEnabled(false);
 #elif CONFIG_TCPSOCKET
-	//tcp_socket->close(); //how to restart?
-	disconnect(this, SLOT(parseDeviceInfo()));
+		//tcp_socket->close(); //how to restart?
+		disconnect(this, SLOT(parseDeviceInfo()));
 #else
-	this->quit();
+		this->quit();
 #endif
+		close(netlink_socket);
+		netlink_socket = -1;
+	}
 	return true;
 }
 
@@ -122,6 +134,23 @@ void QDeviceWatcherPrivate::run()
 }
 #endif //CONFIG_THREAD
 
+/**
+ * Create new udev monitor and connect to a specified event
+ * source. Valid sources identifiers are "udev" and "kernel".
+ *
+ * Applications should usually not connect directly to the
+ * "kernel" events, because the devices might not be useable
+ * at that time, before udev has configured them, and created
+ * device nodes.
+ *
+ * Accessing devices at the same time as udev, might result
+ * in unpredictable behavior.
+ *
+ * The "udev" events are sent out after udev has finished its
+ * event processing, all rules have been processed, and needed
+ * device nodes are created.
+ **/
+
 bool QDeviceWatcherPrivate::init()
 {
 	struct sockaddr_nl snl;
@@ -131,9 +160,9 @@ bool QDeviceWatcherPrivate::init()
 	memset(&snl, 0x00, sizeof(struct sockaddr_nl));
 	snl.nl_family = AF_NETLINK;
 	snl.nl_pid = getpid();
-	snl.nl_groups = 1;
+	snl.nl_groups = UDEV_MONITOR_KERNEL;
 
-	netlink_socket = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
+	netlink_socket = socket(PF_NETLINK, SOCK_DGRAM|SOCK_CLOEXEC, NETLINK_KOBJECT_UEVENT);
 	if (netlink_socket == -1) {
 		qWarning("error getting socket: %s", strerror(errno));
 		return false;
@@ -147,6 +176,19 @@ bool QDeviceWatcherPrivate::init()
 		close(netlink_socket);
 		netlink_socket = -1;
 		return false;
+	} else if (retval == 0) {
+		//from libudev-monitor.c
+		struct sockaddr_nl _snl;
+		socklen_t _addrlen;
+
+		/*
+		 * get the address the kernel has assigned us
+		 * it is usually, but not necessarily the pid
+		 */
+		_addrlen = sizeof(struct sockaddr_nl);
+		retval = getsockname(netlink_socket, (struct sockaddr *)&_snl, &_addrlen);
+		if (retval == 0)
+			snl.nl_pid = _snl.nl_pid;
 	}
 
 #if CONFIG_SOCKETNOTIFIER
@@ -167,6 +209,7 @@ bool QDeviceWatcherPrivate::init()
 
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
+	zDebug("kernel: %s", line.constData());
 	QDeviceChangeEvent *event = 0;
 	//(add)(?:.*/block/)(.*)
 	static QRegExp uDisk("sd[a-z][0-9]*$");
