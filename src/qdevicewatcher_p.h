@@ -28,7 +28,7 @@
 #define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
 
 //#define QT_NO_DEBUG_OUTPUT 0
-#define CONFIG_DEBUG 1
+#define CONFIG_DEBUG 0
 #if CONFIG_DEBUG
 #define zDebug(fmt, ...) qDebug(""#fmt, ##__VA_ARGS__)
 #else
@@ -42,10 +42,13 @@
 #include <QtCore/QObject>
 #endif //CONFIG_THREAD
 
+#include "qdevicewatcher.h"
+
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif //Q_OS_WIN
 
+class QDeviceWatcher;
 class QDeviceWatcherPrivate
 #if CONFIG_THREAD
 		: public QThread
@@ -66,23 +69,33 @@ public:
 	}
 	~QDeviceWatcherPrivate();
 
+	void setWatcher(QDeviceWatcher *w) {watcher=w;}
 	bool start();
 	bool stop();
 
-	inline void emitDeviceAdded(const QString& dev) {emit deviceAdded(dev);}
-	inline void emitDeviceChanged(const QString& dev) {emit deviceChanged(dev);}
-	inline void emitDeviceRemoved(const QString& dev) {emit deviceRemoved(dev);}
+	//Do not use Qt::DirectConnection. this thread is not watcher's thread!
+	inline void emitDeviceAdded(const QString& dev) {
+		if (!QMetaObject::invokeMethod(watcher, "deviceAdded", Q_ARG(QString, dev)))
+			qWarning("invoke deviceAdded failed");
+	}
+	//Linux: when umounting the device
+	inline void emitDeviceChanged(const QString& dev) {
+		if (!QMetaObject::invokeMethod(watcher, "deviceChanged", Q_ARG(QString, dev)))
+			qWarning("invoke deviceChanged failed");
+	}
+	inline void emitDeviceRemoved(const QString& dev) {
+		if (!QMetaObject::invokeMethod(watcher, "deviceRemoved", Q_ARG(QString, dev)))
+			qWarning("invoke deviceRemoved failed");
+	}
 
 	QList<QObject*> event_receivers;
-signals:
-	void deviceAdded(const QString& dev);
-	void deviceChanged(const QString& dev); //Linux: when umounting the device
-	void deviceRemoved(const QString& dev);
 
 private slots:
 	void parseDeviceInfo();
 
 private:
+	QDeviceWatcher *watcher;
+
 	bool init();
 #if defined(Q_OS_LINUX)
 	void parseLine(const QByteArray& line);

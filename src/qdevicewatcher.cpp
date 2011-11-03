@@ -24,9 +24,7 @@ QDeviceWatcher::QDeviceWatcher(QObject* parent)
 	:QObject(parent),d_ptr(new QDeviceWatcherPrivate)
 {
 	Q_D(QDeviceWatcher);
-	connect(d, SIGNAL(deviceAdded(QString)), this, SIGNAL(deviceAdded(QString)));
-	connect(d, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
-	connect(d, SIGNAL(deviceRemoved(QString)), this, SIGNAL(deviceRemoved(QString)));
+	d->setWatcher(this);
 }
 
 QDeviceWatcher::~QDeviceWatcher()

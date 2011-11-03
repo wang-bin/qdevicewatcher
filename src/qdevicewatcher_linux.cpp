@@ -56,11 +56,7 @@ enum udev_monitor_netlink_group {
 	UDEV_MONITOR_KERNEL,
 	UDEV_MONITOR_UDEV
 };
-/*
-const QByteArray add_str = "add@";
-const QByteArray remove_str = "remove@";
-const QByteArray change_str = "change@";
-*/
+
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
 {
 	stop();
@@ -210,50 +206,7 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	zDebug("kernel: %s", line.constData());
-	//(add)(?:.*/block/)(.*)
-	/*
-	static QRegExp uDisk("sd[a-z][0-9]*$");
-	static QRegExp sdCard("mmcblk[0-9][b-z][0-9]*$");
-	const char* action_str = 0;
 
-	bus_name = line.right(line.length()-line.lastIndexOf('/')-1);
-	if (line.startsWith(add_str)) {
-		action_str = "Add";
-		if (uDisk.indexIn(line)!=-1) { //not exactMatch()?
-			emit deviceAdded(bus_name = "/dev/" + uDisk.cap(0));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, bus_name);
-		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceAdded(bus_name = "/dev/" + sdCard.cap(1));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, bus_name);
-		}
-	} else if (line.startsWith(remove_str)) {
-		action_str = "Remove";
-		if (uDisk.indexIn(line)!=-1) {
-			emit deviceRemoved(bus_name = "/dev/" + uDisk.cap(0));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, bus_name);
-		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceRemoved(bus_name = "/dev/" + sdCard.cap(1));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, bus_name);
-		}
-	} else if (line.startsWith(change_str)) {
-		action_str = "Change";
-		if (uDisk.indexIn(line)!=-1) {
-			emit deviceChanged(bus_name = "/dev/" + uDisk.cap(0));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, bus_name);
-		} else if (sdCard.indexIn(line)!=-1) {
-			emit deviceChanged(bus_name = "/dev/" + sdCard.cap(1));
-			if (!event_receivers.isEmpty())
-				event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, bus_name);
-		}
-	} else{
-		bus_name = line;
-	}
-	*/
 	if (!line.contains("/block/"))
 		return;
 
@@ -262,13 +215,13 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	QDeviceChangeEvent *event = 0;
 
 	if (action_str==QLatin1String("add")) {
-		emit deviceAdded(dev);
+		emitDeviceAdded(dev);
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, dev);
 	} else if (action_str==QLatin1String("remove")) {
-		emit deviceRemoved(dev);
+		emitDeviceRemoved(dev);
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, dev);
 	} else {
-		emit deviceChanged(dev);
+		emitDeviceChanged(dev);
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, dev);
 	}
 
