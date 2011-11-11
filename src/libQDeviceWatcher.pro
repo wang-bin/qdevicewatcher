@@ -1,26 +1,7 @@
 TEMPLATE = lib
-#QT += network
 QT -= gui
-CONFIG += staticlib
+CONFIG += staticlib qdevicewatcher-buildlib
 
-TARGET = QDeviceWatcher
-
-include(../config.pri)
-DESTDIR=$$replace(DESTDIR, $${DESTDIR}, ../$${DESTDIR})
-
-unix {
-    SOURCES += qdevicewatcher_linux.cpp
-} else:win32 {
-    LIBS += -lUser32
-    SOURCES += qdevicewatcher_win.cpp
-}
-
-SOURCES += qdevicewatcher.cpp \
-    qdevicechangeevent.cpp
-
-HEADERS += \
-    qdevicewatcher_p.h \
-    qdevicewatcher.h \
-    qdevicechangeevent.h
-
-
+include(libQDeviceWatcher.pri)
+DESTDIR=$$PROJECT_LIBDIR
+TARGET = $$QDEVICEWATCHER_NAME
