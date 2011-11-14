@@ -1,6 +1,5 @@
 include(../common.pri)
 #load(../common.pri)
-CONFIG *= staticlib
 #QT += network
 
 QDEVICEWATCHER_SRCPATH = $$PWD
@@ -14,7 +13,7 @@ INCLUDEPATH += $$QDEVICEWATCHER_SRCPATH
 DEPENDPATH += $$QDEVICEWATCHER_SRCPATH
 
 !qdevicewatcher-buildlib {
-	static*: PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib(QDeviceWatcher)
+	PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib(QDeviceWatcher)
 	LIBS += -L$$PROJECT_LIBDIR  -l$$QDEVICEWATCHER_NAME
 } else {
 #src

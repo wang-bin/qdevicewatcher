@@ -6,8 +6,8 @@ CONFIG += #ezx#static ezx
 CONFIG += profile
 #profiling, -pg is not supported for msvc
 debug:!*msvc*:profile {
-        QMAKE_CXXFLAGS_DEBUG += -pg
-        QMAKE_LFLAGS_DEBUG += -pg
+		QMAKE_CXXFLAGS_DEBUG += -pg
+		QMAKE_LFLAGS_DEBUG += -pg
 }
 
 #$$[TARGET_PLATFORM]
@@ -16,27 +16,27 @@ PLATFORM_EXT =
 ARCH_EXT =
 TOOLCHAIN_EXT =
 unix {
-  PLATFORM_EXT = _unix
-  *linux*: PLATFORM_EXT = _linux
-  *maemo*: PLATFORM_EXT = _maemo
+	PLATFORM_EXT = _unix
+	*linux*: PLATFORM_EXT = _linux
+	*maemo*: PLATFORM_EXT = _maemo
 } else:win32 {
-  PLATFORM_EXT = _win32
+	PLATFORM_EXT = _win32
 } else:macx {
-  PLATFORM_EXT = _macx
+	PLATFORM_EXT = _macx
 }
 
 ezx {
-  QT_VERSION = 2.3.8
-  CONFIG += qt warn_on release
-  DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
-  PLATFORM_EXT = _ezx
-  QMAKE_CXXFLAGS.ARMCC +=
+	QT_VERSION = 2.3.8
+	CONFIG += qt warn_on release
+	DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
+	PLATFORM_EXT = _ezx
+	QMAKE_CXXFLAGS.ARMCC +=
 }
 
 #*arm*: ARCH_EXT = $${ARCH_EXT}_arm
 #isEqual(QT_ARCH, arm) {
 contains(QT_ARCH, arm.*) {
-  ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
+	ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
 }
 *64:   ARCH_EXT = $${ARCH_EXT}_x64
 *llvm*: TOOLCHAIN_EXT = _llvm
@@ -47,58 +47,55 @@ contains(QT_ARCH, arm.*) {
 #################################functions#########################################
 #qtLibraryTarget
 defineReplace(qtLibraryName) {
-    unset(LIBRARY_NAME)
-    LIBRARY_NAME = $$1
-    CONFIG(debug, debug|release) {
-        !debug_and_release|build_pass {
-            mac:RET = $$member(LIBRARY_NAME, 0)_debug
-            else:win32:RET = $$member(LIBRARY_NAME, 0)d
-        }
-    }
-    isEmpty(RET):RET = $$LIBRARY_NAME
-    return($$RET)
+	unset(LIBRARY_NAME)
+	LIBRARY_NAME = $$1
+	CONFIG(debug, debug|release) {
+		!debug_and_release|build_pass {
+			mac:RET = $$member(LIBRARY_NAME, 0)_debug
+			else:win32:RET = $$member(LIBRARY_NAME, 0)d
+		}
+	}
+	isEmpty(RET):RET = $$LIBRARY_NAME
+	return($$RET)
 }
 
 #fakelib
 defineReplace(qtStaticLib) {
-    unset(LIB_FULLNAME)
-    TEMPLATE += fakelib
-    LIB_FULLNAME = $$qtLibraryTarget($$1)
-    TEMPLATE -= fakelib
-    *msvc*: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).lib
-    else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).a
-    return($$LIB_FULLNAME)
+	unset(LIB_FULLNAME)
+	TEMPLATE += fakelib
+	LIB_FULLNAME = $$qtLibraryTarget($$1)
+	TEMPLATE -= fakelib
+	*msvc*: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).lib
+	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).a
+	return($$LIB_FULLNAME)
 }
 
 defineReplace(qtSharedLib) {
-    unset(LIB_FULLNAME)
-    TEMPLATE += fakelib
-    LIB_FULLNAME = $$qtLibraryTarget($$1)
-    TEMPLATE -= fakelib
-    win32: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).dll
-    else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).so
-    return($$LIB_FULLNAME)
+	unset(LIB_FULLNAME)
+	TEMPLATE += fakelib
+	LIB_FULLNAME = $$qtLibraryTarget($$1)
+	TEMPLATE -= fakelib
+	win32: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).dll
+	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).so
+	return($$LIB_FULLNAME)
 }
 
 defineReplace(qtLongName) {
-    unset(LONG_NAME)
-    LONG_NAME = $$1$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
-    return($$LONG_NAME)
+	unset(LONG_NAME)
+	LONG_NAME = $$1$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
+	return($$LONG_NAME)
 }
 
-#before target name changed
-TRANSLATIONS += i18n/$${TARGET}_zh-cn.ts #i18n/$${TARGET}_zh_CN.ts
 
 
-
-##############################directories####################################
+##############################paths####################################
 #message(pwd $$PWD)			#this file dir
 #message(out pwd $$OUT_PWD)	#Makefile dir
 BUILD_DIR=$$PWD
 
 isEqual(TEMPLATE, app) {
-  DESTDIR = $$BUILD_DIR/bin
-  TARGET = $$qtLongName($$TARGET)
+	DESTDIR = $$BUILD_DIR/bin
+	TARGET = $$qtLongName($$TARGET)
 }
 else: DESTDIR = $$BUILD_DIR/lib
 
@@ -110,3 +107,6 @@ UI_DIR  = $$BUILD_DIR/.ui/$${QT_VERSION}
 
 #unix: QMAKE_POST_LINK=strip $(TARGET)
 !build_pass:message(target: $$DESTDIR/$$TARGET)
+
+#before target name changed
+TRANSLATIONS += i18n/$${TARGET}_zh-cn.ts #i18n/$${TARGET}_zh_CN.ts
