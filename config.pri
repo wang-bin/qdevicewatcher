@@ -58,9 +58,6 @@ RCC_DIR = .rcc/$${QT_VERSION}
 UI_DIR  = .ui/$${QT_VERSION}
 
 #unix: QMAKE_POST_LINK=strip $(TARGET)
-message(platform $$PLATFORM_EXT)
-message(arch $$ARCH_EXT)
-message(toolchain $$TOOLCHAIN_EXT)
 !build_pass:message(target: $$DESTDIR/$$TARGET)
 
 

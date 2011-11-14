@@ -1,6 +1,6 @@
 TEMPLATE = lib
 QT -= gui
-CONFIG += staticlib qdevicewatcher-buildlib
+CONFIG *= staticlib qdevicewatcher-buildlib
 
 include(libQDeviceWatcher.pri)
 DESTDIR=$$PROJECT_LIBDIR
