@@ -1,7 +1,8 @@
-include(../config.pri)
+include(../common.pri)
+#load(../common.pri)
 CONFIG *= staticlib
-
 #QT += network
+
 QDEVICEWATCHER_SRCPATH = $$PWD
 PROJECT_LIBDIR = $$PWD/../lib$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
 
