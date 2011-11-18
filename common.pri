@@ -42,10 +42,26 @@ contains(QT_ARCH, arm.*) {
 *llvm*: TOOLCHAIN_EXT = _llvm
 #*msvc*:
 
-
+win32-msvc* {
+    #Don't warn about sprintf, fopen etc being 'unsafe'
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+}
 
 #################################functions#########################################
-#qtLibraryTarget
+defineReplace(cleanPath) {
+    win32:1 ~= s|\\\\|/|g
+    contains(1, ^/.*):pfx = /
+    else:pfx =
+    segs = $$split(1, /)
+    out =
+    for(seg, segs) {
+        equals(seg, ..):out = $$member(out, 0, -2)
+        else:!equals(seg, .):out += $$seg
+    }
+    return($$join(out, /, $$pfx))
+}
+
+#Acts like qtLibraryTarget. From qtcreator.pri
 defineReplace(qtLibraryName) {
 	unset(LIBRARY_NAME)
 	LIBRARY_NAME = $$1
@@ -58,6 +74,7 @@ defineReplace(qtLibraryName) {
 	isEmpty(RET):RET = $$LIBRARY_NAME
 	return($$RET)
 }
+
 
 #fakelib
 defineReplace(qtStaticLib) {
@@ -89,8 +106,10 @@ defineReplace(qtLongName) {
 
 
 ##############################paths####################################
-#message(pwd $$PWD)			#this file dir
-#message(out pwd $$OUT_PWD)	#Makefile dir
+#message(pwd=$$PWD)			#this file dir
+#message(out pwd=$$OUT_PWD)	#Makefile dir
+#message(pro file=$$_PRO_FILE_)
+#message(pro file pwd=$$_PRO_FILE_PWD_)
 BUILD_DIR=$$PWD
 
 isEqual(TEMPLATE, app) {

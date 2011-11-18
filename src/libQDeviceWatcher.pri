@@ -1,6 +1,10 @@
+!isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
+LIBQDEVICEWATCHER_PRI_INCLUDED = 1
+
 include(../common.pri)
 #load(../common.pri)
 #QT += network
+CONFIG += depend_includepath #?
 
 QDEVICEWATCHER_SRCPATH = $$PWD
 PROJECT_LIBDIR = $$PWD/../lib$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
@@ -18,18 +22,18 @@ DEPENDPATH += $$QDEVICEWATCHER_SRCPATH
 } else {
 #src
 	unix {
-		SOURCES += qdevicewatcher_linux.cpp
+		SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher_linux.cpp
 	} else:win32 {
 		LIBS += -lUser32
-		SOURCES += qdevicewatcher_win.cpp
+		SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher_win.cpp
 	}
 
-	SOURCES += qdevicewatcher.cpp \
-		qdevicechangeevent.cpp
+	SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher.cpp \
+		$$QDEVICEWATCHER_SRCPATH/qdevicechangeevent.cpp
 
 	HEADERS += \
-		qdevicewatcher_p.h \
-		qdevicewatcher.h \
-		qdevicechangeevent.h
+		$$QDEVICEWATCHER_SRCPATH/qdevicewatcher_p.h \
+		$$QDEVICEWATCHER_SRCPATH/qdevicewatcher.h \
+		$$QDEVICEWATCHER_SRCPATH/qdevicechangeevent.h
 
 }

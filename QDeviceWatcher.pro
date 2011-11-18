@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
+CONFIG += ordered
 SUBDIRS = libqdevicewatcher test
 
 libqdevicewatcher.file = src/libQDeviceWatcher.pro
