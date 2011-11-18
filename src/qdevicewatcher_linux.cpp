@@ -102,6 +102,7 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	//socket_notifier->setEnabled(false); //for win
 	QByteArray line;
 	line.resize(UEVENT_BUFFER_SIZE*2);
+	line.fill(0);
 	read(socket_notifier->socket(), line.data(), UEVENT_BUFFER_SIZE*2);
 	parseLine(line);
 	//socket_notifier->setEnabled(true); //for win
@@ -203,9 +204,12 @@ bool QDeviceWatcherPrivate::init()
 	return true;
 }
 
-void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
+void QDeviceWatcherPrivate::parseLine(const QByteArray &pLine)
 {
 	zDebug("kernel: %s", line.constData());
+
+	QByteArray line(pLine);
+	line.truncate(line.indexOf(QChar(0))); //important！！！
 
 	if (!line.contains("/block/"))
 		return;
