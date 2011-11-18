@@ -41,6 +41,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
+#include <QtCore/QTextStream>
 #if CONFIG_SOCKETNOTIFIER
 #include <QtCore/QSocketNotifier>
 #elif CONFIG_TCPSOCKET
@@ -98,35 +99,47 @@ bool QDeviceWatcherPrivate::stop()
 
 void QDeviceWatcherPrivate::parseDeviceInfo()
 {//zDebug("%s active", qPrintable(QTime::currentTime().toString()));
+	QByteArray data;
 #if CONFIG_SOCKETNOTIFIER
 	//socket_notifier->setEnabled(false); //for win
-	QByteArray line;
-	line.resize(UEVENT_BUFFER_SIZE*2);
-	line.fill(0);
-	read(socket_notifier->socket(), line.data(), UEVENT_BUFFER_SIZE*2);
-	parseLine(line);
+	data.resize(UEVENT_BUFFER_SIZE*2);
+	data.fill(0);
+	read(socket_notifier->socket(), data.data(), UEVENT_BUFFER_SIZE*2);
 	//socket_notifier->setEnabled(true); //for win
 #elif CONFIG_TCPSOCKET
-	QByteArray line = tcp_socket->readAll();
-	parseLine(line);
-#else
+	data = tcp_socket->readAll();
 #endif
+	zDebug("Parsing socket data...");
+	QTextStream stream(data);
+	QString line(stream.readLine());
+	while(!line.isNull()) {
+		zDebug("%s", qPrintable(line));
+		parseLine(line.toLocal8Bit());
+		line = stream.readLine();
+	}
 }
 
 #if CONFIG_THREAD
 //another thread
 void QDeviceWatcherPrivate::run()
 {
-	QByteArray line;
-	line.resize(UEVENT_BUFFER_SIZE*2);
+	QByteArray data;
+	data.resize(UEVENT_BUFFER_SIZE*2);
 	//eventloop
 	//loop only when event happens. because of recv() block the function?
 	while (1) {
 		//char buf[UEVENT_BUFFER_SIZE*2] = {0};
 		//recv(d->netlink_socket, &buf, sizeof(buf), 0);
-		line.fill(0);
-		recv(netlink_socket, line.data(), line.size(), 0);
-		parseLine(line);
+		data.fill(0);
+		recv(netlink_socket, data.data(), data.size(), 0);
+		zDebug("Parsing socket data...");
+		QTextStream stream(data);
+		QString line(stream.readLine());
+		while(!line.isNull()) {
+			zDebug("%s", qPrintable(line));
+			parseLine(line.toLocal8Bit());
+			line = stream.readLine();
+		}
 	}
 }
 #endif //CONFIG_THREAD
@@ -204,13 +217,8 @@ bool QDeviceWatcherPrivate::init()
 	return true;
 }
 
-void QDeviceWatcherPrivate::parseLine(const QByteArray &pLine)
+void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
-	zDebug("kernel: %s", line.constData());
-
-	QByteArray line(pLine);
-	line.truncate(line.indexOf(QChar(0))); //important！！！
-
 	if (!line.contains("/block/"))
 		return;
 
@@ -229,7 +237,7 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &pLine)
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, dev);
 	}
 
-	zDebug("%s: %s %s", __FUNCTION__, qPrintable(action_str), qPrintable(dev));
+	zDebug("%s %s", qPrintable(action_str), qPrintable(dev));
 
 	if (event != 0 && !event_receivers.isEmpty()) {
 		foreach(QObject* obj, event_receivers) {
