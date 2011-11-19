@@ -38,9 +38,6 @@
 #
 
 
-include(libQDeviceWatcher.pri)
-#
-
 !isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
 LIBQDEVICEWATCHER_PRI_INCLUDED = 1
 
