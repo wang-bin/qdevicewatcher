@@ -21,11 +21,11 @@
 #define QUSBWATCHER_H
 
 #include <QtCore/QObject>
-
+#include "qdevicewatcher_global.h"
 
 class QDeviceWatcherPrivate;
 
-class QDeviceWatcher : public QObject
+class QDEVICEWATCHERSHARED_EXPORT QDeviceWatcher : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(QDeviceWatcher)

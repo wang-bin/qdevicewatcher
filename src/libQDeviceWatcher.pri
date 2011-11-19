@@ -1,45 +1,114 @@
+# qmake library building template pri file
+# Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+# Shanghai, China.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Usually what you need to change are: staticlink, LIB_VERSION, NAME and DLLDESTDIR.
+# And rename xx-buildlib and LIBQDEVICEWATCHER_PRI_INCLUDED
+#
+
 !isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
 LIBQDEVICEWATCHER_PRI_INCLUDED = 1
 
-include(../common.pri)
-#load(../common.pri)
+staticlink = 0 #1 or 0. use static lib or not
+LIB_VERSION = 2.0.0
 #QT += network
-CONFIG += depend_includepath #?
-
-QDEVICEWATCHER_SRCPATH = $$PWD
-PROJECT_LIBDIR = $$PWD/../lib$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
 
 NAME = QDeviceWatcher
 TEMPLATE += fakelib
-QDEVICEWATCHER_NAME = $$qtLibraryTarget($$NAME)
+PROJECT_TARGETNAME = $$qtLibraryTarget($$NAME)
 TEMPLATE -= fakelib
 
-INCLUDEPATH += $$QDEVICEWATCHER_SRCPATH
-DEPENDPATH += $$QDEVICEWATCHER_SRCPATH
-QMAKE_RPATH += $$PROJECT_LIBDIR
+
+include(../common.pri)
+#load(../common.pri)
+CONFIG += depend_includepath #?
+
+PROJECT_SRCPATH = $$PWD
+PROJECT_LIBDIR = $$qtLongName($$PWD/../lib)
+#PROJECT_LIBDIR = $$PWD/../bin #for win dll
+
+INCLUDEPATH += $$PROJECT_SRCPATH
+DEPENDPATH += $$PROJECT_SRCPATH
+QMAKE_LFLAGS_RPATH += #will append to rpath dir
 
 !qdevicewatcher-buildlib {
-	PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
-	LIBS += -L$$PROJECT_LIBDIR  -l$$QDEVICEWATCHER_NAME
-	unix: QMAKE_RPATHDIR += $$PROJECT_LIBDIR
+
+	#The following may not need to change
+	win32 {
+		isEqual(staticlink, 1) {
+			#the name of static lib does not include the version
+			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
+			LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME)
+		} else {
+			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME, $$LIB_VERSION)
+			LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME, $$LIB_VERSION)
+		}
+	} else {
+		isEqual(staticlink, 1): PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
+		else:PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+		LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME)
+	}
+        unix: QMAKE_RPATHDIR += $$DESTDIR:$$PROJECT_LIBDIR #executable's dir
 } else {
-	VERSION = 2.0.0
-	TARGET = $$QDEVICEWATCHER_NAME
-	DESTDIR= $$PROJECT_LIBDIR
-#src
-	unix {
-		SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher_linux.cpp
-	} else:win32 {
-		LIBS += -lUser32
-		SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher_win.cpp
+	#Add your additional configuration first
+	win32: LIBS += -lUser32
+
+
+	#The following may not need to change
+	isEqual(staticlink, 1) {
+                CONFIG -= shared dll ##otherwise the following shared is true, why?
+		CONFIG *= staticlib
+	}
+	else {
+                DEFINES += QDEVICEWATCHER_LIBRARY #win32-msvc*
+                CONFIG *= shared #shared includes dll
 	}
 
-	SOURCES += $$QDEVICEWATCHER_SRCPATH/qdevicewatcher.cpp \
-		$$QDEVICEWATCHER_SRCPATH/qdevicechangeevent.cpp
+	VERSION = $$LIB_VERSION
+	TARGET = $$PROJECT_TARGETNAME
+	DESTDIR= $$PROJECT_LIBDIR
+	shared {
+		DLLDESTDIR = ../bin #copy shared lib there
+		!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 
-	HEADERS += \
-		$$QDEVICEWATCHER_SRCPATH/qdevicewatcher_p.h \
-		$$QDEVICEWATCHER_SRCPATH/qdevicewatcher.h \
-		$$QDEVICEWATCHER_SRCPATH/qdevicechangeevent.h
+		#copy from the pro creator creates.
+		symbian {
+			MMP_RULES += EXPORTUNFROZEN
+			TARGET.UID3 = 0xE4CC8061
+			TARGET.CAPABILITY =
+			TARGET.EPOCALLOWDLLDATA = 1
+			addFiles.sources = $$qtSharedLib($$NAME, $$LIB_VERSION)
+			addFiles.path = !:/sys/bin
+			DEPLOYMENT += addFiles
+		}
+	}
+	unix:!symbian {
+		maemo5 {
+			target.path = /opt/usr/lib
+		} else {
+			target.path = /usr/lib
+		}
+		INSTALLS += target
+	}
 
 }
+
+unset(LIB_VERSION)
+unset(PROJECT_SRCPATH)
+unset(PROJECT_LIBDIR)
+unset(PROJECT_TARGETNAME)
+unset(staticlink)

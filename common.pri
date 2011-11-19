@@ -1,13 +1,28 @@
-#Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
-#Shanghai, China.
-#GPL v2
+# qmake common template pri file
+# Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+# Shanghai, China.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-CONFIG += #ezx#static ezx
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+CONFIG += #ezx
 CONFIG += profile
 #profiling, -pg is not supported for msvc
 debug:!*msvc*:profile {
-		QMAKE_CXXFLAGS_DEBUG += -pg
-		QMAKE_LFLAGS_DEBUG += -pg
+        QMAKE_CXXFLAGS_DEBUG += -pg
+        QMAKE_LFLAGS_DEBUG += -pg
 }
 
 #$$[TARGET_PLATFORM]
@@ -31,12 +46,10 @@ ezx {
 	CONFIG += qt warn_on release
 	DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
 	PLATFORM_EXT = _ezx
-	QMAKE_CXXFLAGS.ARMCC +=
 	isEmpty(QT_ARCH): QT_ARCH = arm
 }
 
 #*arm*: ARCH_EXT = $${ARCH_EXT}_arm
-#isEqual(QT_ARCH, arm) {
 contains(QT_ARCH, arm.*) {
 	ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
 	unix: GCC_PREFIX = arm-linux-
@@ -46,8 +59,8 @@ contains(QT_ARCH, arm.*) {
 #*msvc*:
 
 win32-msvc* {
-    #Don't warn about sprintf, fopen etc being 'unsafe'
-    DEFINES += _CRT_SECURE_NO_WARNINGS
+        #Don't warn about sprintf, fopen etc being 'unsafe'
+        DEFINES += _CRT_SECURE_NO_WARNINGS
 }
 
 #################################functions#########################################
@@ -65,7 +78,10 @@ defineReplace(cleanPath) {
 }
 
 #Acts like qtLibraryTarget. From qtcreator.pri
-defineReplace(qtLibraryName) {
+defineReplace(qtLibName) {
+	#TEMPLATE += fakelib
+	#LIB_FULLNAME = $$qtLibraryTarget($$1)
+	#TEMPLATE -= fakelib
 	unset(LIBRARY_NAME)
 	LIBRARY_NAME = $$1
 	CONFIG(debug, debug|release) {
@@ -75,6 +91,16 @@ defineReplace(qtLibraryName) {
 		}
 	}
 	isEmpty(RET):RET = $$LIBRARY_NAME
+	!win32: return($$RET)
+
+	isEmpty(2): VERSION_EXT = $$VERSION
+	else: VERSION_EXT = $$2
+	!isEmpty(VERSION_EXT) {
+		VERSION_EXT = $$section(VERSION_EXT, ., 0, 0)
+		isEqual(VERSION_EXT, 0):unset(VERSION_EXT)
+	}
+	RET = $${RET}$${VERSION_EXT}
+	unset(VERSION_EXT)
 	return($$RET)
 }
 
@@ -82,9 +108,7 @@ defineReplace(qtLibraryName) {
 #fakelib
 defineReplace(qtStaticLib) {
 	unset(LIB_FULLNAME)
-	TEMPLATE += fakelib
-	LIB_FULLNAME = $$qtLibraryTarget($$1)
-	TEMPLATE -= fakelib
+	LIB_FULLNAME = $$qtLibName($$1, $$2)
 	*msvc*: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).lib
 	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).a
 	return($$LIB_FULLNAME)
@@ -92,11 +116,10 @@ defineReplace(qtStaticLib) {
 
 defineReplace(qtSharedLib) {
 	unset(LIB_FULLNAME)
-	TEMPLATE += fakelib
-	LIB_FULLNAME = $$qtLibraryTarget($$1)
-	TEMPLATE -= fakelib
+	LIB_FULLNAME = $$qtLibName($$1, $$2)
 	win32: LIB_FULLNAME = $$member(LIB_FULLNAME, 0).dll
 	else: LIB_FULLNAME = lib$$member(LIB_FULLNAME, 0).so
+	#macx: TARGET_BASEPATH = $${TARGET_BASEPATH}.$${QMAKE_EXTENSION_SHLIB} #default_post.prf
 	return($$LIB_FULLNAME)
 }
 
@@ -118,7 +141,7 @@ BUILD_DIR=$$PWD
 isEqual(TEMPLATE, app) {
 	DESTDIR = $$BUILD_DIR/bin
 	TARGET = $$qtLongName($$TARGET)
-	unix: QMAKE_POST_LINK = $${GCC_PREFIX}strip $$DESTDIR/$$TARGET
+        !isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
 }
 else: DESTDIR = $$BUILD_DIR/lib
 
@@ -128,7 +151,6 @@ MOC_DIR = $$BUILD_DIR/.moc/$${QT_VERSION}
 RCC_DIR = $$BUILD_DIR/.rcc/$${QT_VERSION}
 UI_DIR  = $$BUILD_DIR/.ui/$${QT_VERSION}
 
-#unix: QMAKE_POST_LINK=strip $(TARGET)
 !build_pass:message(target: $$DESTDIR/$$TARGET)
 
 #before target name changed
