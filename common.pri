@@ -15,6 +15,7 @@ debug:!*msvc*:profile {
 PLATFORM_EXT =
 ARCH_EXT =
 TOOLCHAIN_EXT =
+GCC_PREFIX =
 unix {
 	PLATFORM_EXT = _unix
 	*linux*: PLATFORM_EXT = _linux
@@ -31,12 +32,14 @@ ezx {
 	DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
 	PLATFORM_EXT = _ezx
 	QMAKE_CXXFLAGS.ARMCC +=
+	isEmpty(QT_ARCH): QT_ARCH = arm
 }
 
 #*arm*: ARCH_EXT = $${ARCH_EXT}_arm
 #isEqual(QT_ARCH, arm) {
 contains(QT_ARCH, arm.*) {
 	ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
+	unix: GCC_PREFIX = arm-linux-
 }
 *64:   ARCH_EXT = $${ARCH_EXT}_x64
 *llvm*: TOOLCHAIN_EXT = _llvm
@@ -115,6 +118,7 @@ BUILD_DIR=$$PWD
 isEqual(TEMPLATE, app) {
 	DESTDIR = $$BUILD_DIR/bin
 	TARGET = $$qtLongName($$TARGET)
+	unix: QMAKE_POST_LINK = $${GCC_PREFIX}strip $$DESTDIR/$$TARGET
 }
 else: DESTDIR = $$BUILD_DIR/lib
 
