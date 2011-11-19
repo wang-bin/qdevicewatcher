@@ -1,6 +1,4 @@
-block, not sd* mmcblk*
-
-input device
+other device
 windows and other platforms. See QDrive
 watch /etc/mtab for linux 2.4
 
