@@ -16,14 +16,35 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+############################## HOW TO ##################################
+# Suppose the library name is XX
 # Usually what you need to change are: staticlink, LIB_VERSION, NAME and DLLDESTDIR.
-# And rename xx-buildlib and LIBQDEVICEWATCHER_PRI_INCLUDED
+# And rename xx-buildlib and LIBXX_PRI_INCLUDED
+# the contents of libXX.pro is:
+#
+#    TEMPLATE = lib
+#    QT -= gui
+#    CONFIG *= xx-buildlib
+#    include(libXX.pri)
+#    HEADERS = ...
+#    SOURCES = ...
+#    ...
+# the content of other pro using this library is:
+#
+#    TEMPLATE = app
+#    include(dir_of_XX/libXX.pri)
+#    HEADERS = ...
+#    SOURCES = ...
+#
+
+
+include(libQDeviceWatcher.pri)
 #
 
 !isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
 LIBQDEVICEWATCHER_PRI_INCLUDED = 1
 
-staticlink = 0 #1 or 0. use static lib or not
+staticlink = 1  #1 or 0. use static lib or not
 LIB_VERSION = 2.0.0
 #QT += network
 
@@ -58,29 +79,35 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 			LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME, $$LIB_VERSION)
 		}
 	} else {
-		isEqual(staticlink, 1): PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
-		else:PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+		isEqual(staticlink, 1) {
+			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
+		} else {
+			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+			unix: QMAKE_RPATHDIR += $$DESTDIR:$$PROJECT_LIBDIR #executable's dir
+		}
 		LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME)
 	}
-        unix: QMAKE_RPATHDIR += $$DESTDIR:$$PROJECT_LIBDIR #executable's dir
+
 } else {
 	#Add your additional configuration first
 	win32: LIBS += -lUser32
 
 
 	#The following may not need to change
-	isEqual(staticlink, 1) {
-                CONFIG -= shared dll ##otherwise the following shared is true, why?
-		CONFIG *= staticlib
-	}
-	else {
-                DEFINES += QDEVICEWATCHER_LIBRARY #win32-msvc*
-                CONFIG *= shared #shared includes dll
-	}
 
 	VERSION = $$LIB_VERSION
 	TARGET = $$PROJECT_TARGETNAME
 	DESTDIR= $$PROJECT_LIBDIR
+
+	isEqual(staticlink, 1) {
+		CONFIG -= shared dll ##otherwise the following shared is true, why?
+		CONFIG *= staticlib
+	}
+	else {
+		DEFINES += QDEVICEWATCHER_LIBRARY #win32-msvc*
+		CONFIG *= shared #shared includes dll
+	}
+
 	shared {
 		DLLDESTDIR = ../bin #copy shared lib there
 		!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
