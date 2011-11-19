@@ -110,13 +110,14 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	data = tcp_socket->readAll();
 #endif
 	zDebug("Parsing socket data...");
-	QTextStream stream(data);
-	QString line(stream.readLine());
-	while(!line.isNull()) {
-		zDebug("%s", qPrintable(line));
-		parseLine(line.toLocal8Bit());
-		line = stream.readLine();
+	if (buffer.isOpen())
+		buffer.close();
+	buffer.setBuffer(&data);
+	buffer.open(QIODevice::ReadOnly);
+	while(!buffer.atEnd()) { //buffer.canReadLine() always false?
+		parseLine(buffer.readLine());
 	}
+	buffer.close();
 }
 
 #if CONFIG_THREAD
@@ -133,13 +134,16 @@ void QDeviceWatcherPrivate::run()
 		data.fill(0);
 		recv(netlink_socket, data.data(), data.size(), 0);
 		zDebug("Parsing socket data...");
-		QTextStream stream(data);
-		QString line(stream.readLine());
+		if (buffer.isOpen())
+			buffer.close();
+		buffer.setBuffer(&data);
+		buffer.open(QIODevice::ReadOnly);
+		QByteArray line = buffer.readLine();
 		while(!line.isNull()) {
-			zDebug("%s", qPrintable(line));
-			parseLine(line.toLocal8Bit());
-			line = stream.readLine();
+			parseLine(line);
+			line = buffer.readLine();
 		}
+		buffer.close();
 	}
 }
 #endif //CONFIG_THREAD
@@ -219,7 +223,8 @@ bool QDeviceWatcherPrivate::init()
 
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
-	if (!line.contains("/block/"))
+	zDebug("%s", line.constData());
+	if (!line.contains("/block/")) //hotplug
 		return;
 
 	QString action_str = line.left(line.indexOf('@')).toLower();

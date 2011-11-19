@@ -46,6 +46,8 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
+#else
+#include <QtCore/QBuffer>
 #endif //Q_OS_WIN
 
 class QDeviceWatcher;
@@ -98,6 +100,7 @@ private:
 
 	bool init();
 #if defined(Q_OS_LINUX)
+	QBuffer buffer;
 	void parseLine(const QByteArray& line);
 #if CONFIG_THREAD
 	virtual void run();
