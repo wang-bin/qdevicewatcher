@@ -141,7 +141,7 @@ BUILD_DIR=$$PWD
 isEqual(TEMPLATE, app) {
 	DESTDIR = $$BUILD_DIR/bin
 	TARGET = $$qtLongName($$TARGET)
-	!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
+	CONFIG(release, debug|release):!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
 }
 else: DESTDIR = $$BUILD_DIR/lib
 
@@ -154,4 +154,4 @@ UI_DIR  = $$BUILD_DIR/.ui/$${QT_VERSION}
 !build_pass:message(target: $$DESTDIR/$$TARGET)
 
 #before target name changed
-TRANSLATIONS += i18n/$${TARGET}_zh-cn.ts #i18n/$${TARGET}_zh_CN.ts
+#TRANSLATIONS += i18n/$${TARGET}_zh-cn.ts #i18n/$${TARGET}_zh_CN.ts
