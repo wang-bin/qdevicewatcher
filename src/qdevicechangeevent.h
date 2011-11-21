@@ -22,8 +22,9 @@
 
 #include <QtCore/QEvent>
 #include <QtCore/QString>
+#include "qdevicewatcher_global.h"
 
-class QDeviceChangeEvent : public QEvent
+class Q_DLL_EXPORT QDeviceChangeEvent : public QEvent
 {
 	Q_ENUMS(Action)
 public:

@@ -25,7 +25,7 @@
 
 class QDeviceWatcherPrivate;
 
-class QDEVICEWATCHERSHARED_EXPORT QDeviceWatcher : public QObject
+class Q_DLL_EXPORT QDeviceWatcher : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(QDeviceWatcher)
