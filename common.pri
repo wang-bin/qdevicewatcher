@@ -27,35 +27,35 @@ debug:!*msvc*:profile {
 
 #$$[TARGET_PLATFORM]
 #$$[QT_ARCH] #windows symbian windowsce arm
-PLATFORM_EXT =
-ARCH_EXT =
-TOOLCHAIN_EXT =
+_OS =
+_ARCH =
+_EXTRA =
 GCC_PREFIX =
 unix {
-	PLATFORM_EXT = _unix
-	*linux*: PLATFORM_EXT = _linux
-	*maemo*: PLATFORM_EXT = _maemo
+        _OS = _unix
+        *linux*: _OS = _linux
+        *maemo*: _OS = _maemo
 } else:win32 {
-	PLATFORM_EXT = _win32
+        _OS = _win32
 } else:macx {
-	PLATFORM_EXT = _macx
+        _OS = _macx
 }
 
 ezx {
 	QT_VERSION = 2.3.8
 	CONFIG += qt warn_on release
 	DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
-	PLATFORM_EXT = _ezx
+        _OS = _ezx
 	isEmpty(QT_ARCH): QT_ARCH = arm
 }
 
-#*arm*: ARCH_EXT = $${ARCH_EXT}_arm
+#*arm*: _ARCH = $${_ARCH}_arm
 contains(QT_ARCH, arm.*) {
-	ARCH_EXT = $${ARCH_EXT}_$${QT_ARCH}
+        _ARCH = $${_ARCH}_$${QT_ARCH}
 	unix: GCC_PREFIX = arm-linux-
 }
-*64:   ARCH_EXT = $${ARCH_EXT}_x64
-*llvm*: TOOLCHAIN_EXT = _llvm
+*64:   _ARCH = $${_ARCH}_x64
+*llvm*: _EXTRA = _llvm
 #*msvc*:
 
 win32-msvc* {
@@ -125,7 +125,7 @@ defineReplace(qtSharedLib) {
 
 defineReplace(qtLongName) {
 	unset(LONG_NAME)
-	LONG_NAME = $$1$${PLATFORM_EXT}$${ARCH_EXT}$${TOOLCHAIN_EXT}
+        LONG_NAME = $$1$${_OS}$${_ARCH}$${_EXTRA}
 	return($$LONG_NAME)
 }
 
