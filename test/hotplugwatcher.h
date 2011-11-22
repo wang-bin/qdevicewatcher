@@ -50,7 +50,7 @@ public:
 public slots:
 	void slotDeviceAdded(const QString& dev) { qDebug("tid=%#x %s: add %s", (unsigned int) QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
 	void slotDeviceRemoved(const QString& dev) { qDebug("tid=%#x %s: remove %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
-	void slotDeviceChanfed(const QString& dev) { qDebug("tid=%#x %s: change %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+	void slotDeviceChanged(const QString& dev) { qDebug("tid=%#x %s: change %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
 protected:
 	virtual bool event(QEvent *e) {
 		if (e->type() == QDeviceChangeEvent::registeredType()) {

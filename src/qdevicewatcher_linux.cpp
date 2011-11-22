@@ -108,6 +108,7 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	data = tcp_socket->readAll();
 #endif
 	zDebug("Parsing socket data...");
+	data = data.replace(0, '\n').trimmed();
 	if (buffer.isOpen())
 		buffer.close();
 	buffer.setBuffer(&data);
@@ -116,6 +117,7 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 		parseLine(buffer.readLine());
 	}
 	buffer.close();
+
 }
 
 #if CONFIG_THREAD
