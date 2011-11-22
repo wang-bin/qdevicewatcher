@@ -108,13 +108,13 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	data = tcp_socket->readAll();
 #endif
 	zDebug("Parsing socket data...");
-	data = data.replace(0, '\n').trimmed();
+	data = data.replace(0, '\n').trimmed(); //In the original line each information is seperated by 0
 	if (buffer.isOpen())
 		buffer.close();
 	buffer.setBuffer(&data);
 	buffer.open(QIODevice::ReadOnly);
 	while(!buffer.atEnd()) { //buffer.canReadLine() always false?
-		parseLine(buffer.readLine());
+		parseLine(buffer.readLine().trimmed());
 	}
 	buffer.close();
 
@@ -134,13 +134,14 @@ void QDeviceWatcherPrivate::run()
 		data.fill(0);
 		recv(netlink_socket, data.data(), data.size(), 0);
 		zDebug("Parsing socket data...");
+		data = data.replace(0, '\n').trimmed();
 		if (buffer.isOpen())
 			buffer.close();
 		buffer.setBuffer(&data);
 		buffer.open(QIODevice::ReadOnly);
 		QByteArray line = buffer.readLine();
 		while(!line.isNull()) {
-			parseLine(line);
+			parseLine(line.trimmed());
 			line = buffer.readLine();
 		}
 		buffer.close();
