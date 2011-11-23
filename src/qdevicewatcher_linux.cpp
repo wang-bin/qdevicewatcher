@@ -178,7 +178,7 @@ bool QDeviceWatcherPrivate::init()
 	snl.nl_groups = UDEV_MONITOR_KERNEL;
 
 	netlink_socket = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
-	//netlink_socket = socket(PF_NETLINK, SOCK_DGRAM|SOCK_CLOEXEC, NETLINK_KOBJECT_UEVENT); //SOCK_CLOEXEC may not available
+	//netlink_socket = socket(PF_NETLINK, SOCK_DGRAM|SOCK_CLOEXEC, NETLINK_KOBJECT_UEVENT); //SOCK_CLOEXEC may be not available
 	if (netlink_socket == -1) {
 		qWarning("error getting socket: %s", strerror(errno));
 		return false;
