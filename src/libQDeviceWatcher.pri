@@ -109,7 +109,7 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 
 	shared {
 		DLLDESTDIR = ../bin #copy shared lib there
-		CONFIG(release, debug|release):!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = $$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+		CONFIG(release, debug|release):!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 
 		#copy from the pro creator creates.
 		symbian {
