@@ -40,6 +40,7 @@
 #include <unistd.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/qregexp.h>
 #if CONFIG_SOCKETNOTIFIER
 #include <QtCore/QSocketNotifier>
 #elif CONFIG_TCPSOCKET
@@ -102,12 +103,13 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 	//socket_notifier->setEnabled(false); //for win
 	data.resize(UEVENT_BUFFER_SIZE*2);
 	data.fill(0);
-	read(socket_notifier->socket(), data.data(), UEVENT_BUFFER_SIZE*2);
+	size_t len = read(socket_notifier->socket(), data.data(), UEVENT_BUFFER_SIZE*2);
+	zDebug("read fro socket %d bytes", len);
+	data.resize(len);
 	//socket_notifier->setEnabled(true); //for win
 #elif CONFIG_TCPSOCKET
 	data = tcp_socket->readAll();
 #endif
-	zDebug("Parsing socket data...");
 	data = data.replace(0, '\n').trimmed(); //In the original line each information is seperated by 0
 	if (buffer.isOpen())
 		buffer.close();
@@ -125,15 +127,15 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 void QDeviceWatcherPrivate::run()
 {
 	QByteArray data;
-	data.resize(UEVENT_BUFFER_SIZE*2);
-	//eventloop
 	//loop only when event happens. because of recv() block the function?
 	while (1) {
 		//char buf[UEVENT_BUFFER_SIZE*2] = {0};
 		//recv(d->netlink_socket, &buf, sizeof(buf), 0);
+		data.resize(UEVENT_BUFFER_SIZE*2);
 		data.fill(0);
-		recv(netlink_socket, data.data(), data.size(), 0);
-		zDebug("Parsing socket data...");
+		size_t len = recv(netlink_socket, data.data(), data.size(), 0);
+		zDebug("read fro socket %d bytes", len);
+		data.resize(len);
 		data = data.replace(0, '\n').trimmed();
 		if (buffer.isOpen())
 			buffer.close();
@@ -226,11 +228,20 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	zDebug("%s", line.constData());
+#define USE_REGEXP 1
+#if USE_REGEXP
+	QRegExp rx("(\\w+)(?:@/.*/block/.*/)(\\w+)\\W*");
+	//QRegExp rx("(add|remove|change)@/.*/block/.*/(\\w+)\\W*");
+	if (rx.indexIn(line) == -1)
+		return;
+	QString action_str = rx.cap(1).toLower();
+	QString dev = "/dev/" + rx.cap(2);
+#else
 	if (!line.contains("/block/")) //hotplug
 		return;
-
 	QString action_str = line.left(line.indexOf('@')).toLower();
 	QString dev = "/dev/" + line.right(line.length() - line.lastIndexOf('/') - 1);
+#endif //USE_REGEXP
 	QDeviceChangeEvent *event = 0;
 
 	if (action_str==QLatin1String("add")) {
