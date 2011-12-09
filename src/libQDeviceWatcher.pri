@@ -41,7 +41,7 @@
 !isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
 LIBQDEVICEWATCHER_PRI_INCLUDED = 1
 
-staticlink = 0  #1 or 0. use static lib or not
+staticlink = 1  #1 or 0. use static lib or not
 LIB_VERSION = 2.0.0
 #QT += network
 
@@ -66,6 +66,7 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 !qdevicewatcher-buildlib {
 
 	#The following may not need to change
+	CONFIG *= link_prl
 	win32 {
 		isEqual(staticlink, 1) {
 			#the name of static lib does not include the version
@@ -98,6 +99,7 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 	TARGET = $$PROJECT_TARGETNAME
 	DESTDIR= $$PROJECT_LIBDIR
 
+	CONFIG *= create_prl #
 	isEqual(staticlink, 1) {
 		CONFIG -= shared dll ##otherwise the following shared is true, why?
 		CONFIG *= staticlib
@@ -109,7 +111,9 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 
 	shared {
 		DLLDESTDIR = ../bin #copy shared lib there
-		CONFIG(release, debug|release):!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+		CONFIG(release, debug|release):
+			!isEmpty(QMAKE_STRIP):
+				QMAKE_POST_LINK = -$$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 
 		#copy from the pro creator creates.
 		symbian {
