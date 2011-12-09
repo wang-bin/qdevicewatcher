@@ -228,7 +228,7 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 {
 	zDebug("%s", line.constData());
-#define USE_REGEXP 1
+#define USE_REGEXP 0
 #if USE_REGEXP
 	QRegExp rx("(\\w+)(?:@/.*/block/.*/)(\\w+)\\W*");
 	//QRegExp rx("(add|remove|change)@/.*/block/.*/(\\w+)\\W*");
