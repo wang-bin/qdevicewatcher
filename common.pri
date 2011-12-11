@@ -17,12 +17,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-CONFIG += #ezx
 CONFIG += profile
 #profiling, -pg is not supported for msvc
 debug:!*msvc*:profile {
         QMAKE_CXXFLAGS_DEBUG += -pg
         QMAKE_LFLAGS_DEBUG += -pg
+		QMAKE_CXXFLAGS_DEBUG = $$unique(QMAKE_CXXFLAGS_DEBUG)
+		QMAKE_LFLAGS_DEBUG = $$unique(QMAKE_LFLAGS_DEBUG)
 }
 
 #$$[TARGET_PLATFORM]
@@ -30,29 +31,26 @@ debug:!*msvc*:profile {
 _OS =
 _ARCH =
 _EXTRA =
-GCC_PREFIX =
-unix {
-        _OS = _unix
-        *linux*: _OS = _linux
-        *maemo*: _OS = _maemo
-} else:win32 {
-        _OS = _win32
-} else:macx {
-        _OS = _macx
-}
 
-ezx {
-	QT_VERSION = 2.3.8
-	CONFIG += qt warn_on release
-	DEFINES += QT_THREAD_SUPPORT CONFIG_EZX
-        _OS = _ezx
-	isEmpty(QT_ARCH): QT_ARCH = arm
+unix {
+		_OS = _unix
+		*linux*: _OS = _linux
+		*maemo* {
+			_OS = _maemo
+			*maemo5*:_OS = _maemo5
+			*maemo6*:_OS = _maemo6
+		}
+		*meego*: _OS = _meego
+		!isEmpty(MEEGO_EDITION): _OS = _$$MEEGO_EDITION
+} else:win32 {
+		_OS = _win32
+} else:macx {
+		_OS = _macx
 }
 
 #*arm*: _ARCH = $${_ARCH}_arm
 contains(QT_ARCH, arm.*) {
         _ARCH = $${_ARCH}_$${QT_ARCH}
-	unix: GCC_PREFIX = arm-linux-
 }
 *64:   _ARCH = $${_ARCH}_x64
 *llvm*: _EXTRA = _llvm

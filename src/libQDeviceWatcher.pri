@@ -67,14 +67,15 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 
 	#The following may not need to change
 	CONFIG *= link_prl
+	LIBS += -L$$PROJECT_LIBDIR
 	win32 {
 		isEqual(staticlink, 1) {
 			#the name of static lib does not include the version
 			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
-			LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME)
+			LIBS += -l$$qtLibName($$NAME)
 		} else {
 			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME, $$LIB_VERSION)
-			LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME, $$LIB_VERSION)
+			LIBS += -l$$qtLibName($$NAME, $$LIB_VERSION)
 		}
 	} else {
 		isEqual(staticlink, 1) {
@@ -83,7 +84,7 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 			unix: QMAKE_RPATHDIR += $$DESTDIR:$$PROJECT_LIBDIR #executable's dir
 		}
-		LIBS += -L$$PROJECT_LIBDIR  -l$$qtLibName($$NAME)
+		LIBS += -l$$qtLibName($$NAME)
 	}
 
 } else {
