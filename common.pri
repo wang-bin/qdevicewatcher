@@ -143,7 +143,7 @@ isEqual(TEMPLATE, app) {
 		!isEmpty(QMAKE_STRIP):
 			QMAKE_POST_LINK = -$$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
 }
-else: DESTDIR = $$BUILD_DIR/lib
+else: DESTDIR = $$qtLongName($$BUILD_DIR/lib)
 
 OBJECTS_DIR = $$qtLongName($$BUILD_DIR/.obj/)
  #for Qt2, Qt3 which does not have QT_VERSION. Qt4: $$[QT_VERSION]
