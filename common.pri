@@ -140,8 +140,7 @@ isEqual(TEMPLATE, app) {
 	DESTDIR = $$BUILD_DIR/bin
 	TARGET = $$qtLongName($$TARGET)
 	CONFIG(release, debug|release):
-		!isEmpty(QMAKE_STRIP):
-			QMAKE_POST_LINK = -$$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
+		!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
 }
 else: DESTDIR = $$qtLongName($$BUILD_DIR/lib)
 

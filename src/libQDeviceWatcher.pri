@@ -41,7 +41,7 @@
 !isEmpty(LIBQDEVICEWATCHER_PRI_INCLUDED):error("libQDeviceWatcher.pri already included")
 LIBQDEVICEWATCHER_PRI_INCLUDED = 1
 
-staticlink = 1  #1 or 0. use static lib or not
+staticlink = 0  #1 or 0. use static lib or not
 LIB_VERSION = 2.0.0
 #QT += network
 
@@ -67,26 +67,17 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 
 	#The following may not need to change
 	CONFIG *= link_prl
-	LIBS += -L$$PROJECT_LIBDIR
-	win32 {
-		isEqual(staticlink, 1) {
-			#the name of static lib does not include the version
-			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
-			LIBS += -l$$qtLibName($$NAME)
-		} else {
-			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME, $$LIB_VERSION)
-			LIBS += -l$$qtLibName($$NAME, $$LIB_VERSION)
-		}
+	LIBS += -L$$PROJECT_LIBDIR -l$$qtLibName($$NAME)
+	isEqual(staticlink, 1) {
+		PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
 	} else {
-		isEqual(staticlink, 1) {
-			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtStaticLib($$NAME)
+		win32 {
+			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME, $$LIB_VERSION)
 		} else {
 			PRE_TARGETDEPS += $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 			unix: QMAKE_RPATHDIR += $$DESTDIR:$$PROJECT_LIBDIR #executable's dir
 		}
-		LIBS += -l$$qtLibName($$NAME)
 	}
-
 } else {
 	#Add your additional configuration first
 	win32: LIBS += -lUser32
@@ -113,8 +104,7 @@ QMAKE_LFLAGS_RPATH += #will append to rpath dir
 	shared {
 		DLLDESTDIR = ../bin #copy shared lib there
 		CONFIG(release, debug|release):
-			!isEmpty(QMAKE_STRIP):
-				QMAKE_POST_LINK = -$$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
+			!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$PROJECT_LIBDIR/$$qtSharedLib($$NAME)
 
 		#copy from the pro creator creates.
 		symbian {
