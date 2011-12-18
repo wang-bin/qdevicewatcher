@@ -42,7 +42,9 @@ unix {
 		}
 		*meego*: _OS = _meego
 		!isEmpty(MEEGO_EDITION): _OS = _$$MEEGO_EDITION
-} else:win32 {
+} else:wince* {
+		_OS = _wince
+} else:win32 { #true for wince
 		_OS = _win32
 } else:macx {
 		_OS = _macx

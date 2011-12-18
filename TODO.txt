@@ -1,3 +1,5 @@
+rpath.pri
+OTHER PLATFORM
 Use QAbstractEventDispatcher. See QxtGlobalShortcut
 
 other device
