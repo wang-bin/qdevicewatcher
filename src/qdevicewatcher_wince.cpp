@@ -49,11 +49,11 @@ bool QDeviceWatcherPrivate::stop()
 {
 	quit();
 
-	if (!StopDeviceNotifications(hNotify)) {
+	if (!StopDeviceNotifications(mNotification)) {
 		//GetLastError
 		return false;
 	}
-	if (!CloseMsgQueue(qStore)) {
+	if (!CloseMsgQueue(mQueue)) {
 		//GetLastError
 		return false;
 	}
@@ -71,13 +71,13 @@ bool QDeviceWatcherPrivate::init()
 	msgopts.cbMaxMessage = sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR));
 	msgopts.bReadAccess = TRUE;
 
-	qStore = CreateMsgQueue(NULL, &msgopts);
-	if (qStore == NULL) {
+	mQueue = CreateMsgQueue(NULL, &msgopts);
+	if (mQueue == NULL) {
 		//GetLastError
 		return false;
 	}
-	hNotify = RequestDeviceNotifications(&BLOCK_DRIVER_GUID, qStore, TRUE);
-	if (hNotify == NULL) {
+	mNotification = RequestDeviceNotifications(&BLOCK_DRIVER_GUID, mQueue, TRUE);
+	if (mNotification == NULL) {
 		//GetLastError
 		return false;
 	}
@@ -92,8 +92,8 @@ void QDeviceWatcherPrivate::run()
 	BYTE DevDetail[sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR))];
 	DEVDETAIL *pDetail = (DEVDETAIL*)DevDetail;
 	while (true) {
-		if(WaitForSingleObject(qStore, 3000) == WAIT_OBJECT_0) {
-			while(ReadMsgQueue(qStore, pDetail, sizeof(DevDetail), &size, 1, &flags)) {
+		if(WaitForSingleObject(mQueue, 3000) == WAIT_OBJECT_0) {
+			while(ReadMsgQueue(mQueue, pDetail, sizeof(DevDetail), &size, 1, &flags)) {
 				QString dev = TCHAR2QString(pDetail->szName);
 				QDeviceChangeEvent *event = 0;
 				if (pDetail->fAttached) {

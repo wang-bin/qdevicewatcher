@@ -108,7 +108,7 @@ private:
 
 	bool init();
 #if CONFIG_THREAD
-    virtual void run();
+	virtual void run();
 #endif //CONFIG_THREAD
 #if defined(Q_OS_LINUX)
 	QBuffer buffer;
@@ -124,8 +124,8 @@ private:
 #elif defined(Q_OS_WIN32)
 	HWND hwnd;
 #elif defined(Q_OS_WINCE)
-    HANDLE qStore;
-    HANDLE hNotify;
+	HANDLE mQueue;
+	HANDLE mNotification;
 #endif
 };
 

@@ -141,8 +141,10 @@ BUILD_DIR=$$PWD
 isEqual(TEMPLATE, app) {
 	DESTDIR = $$BUILD_DIR/bin
 	TARGET = $$qtLongName($$TARGET)
+	EXE_EXT =
+	win32: EXE_EXT = .exe
 	CONFIG(release, debug|release):
-		!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$DESTDIR/$${TARGET}* #.exe in win
+		!isEmpty(QMAKE_STRIP): QMAKE_POST_LINK = -$$QMAKE_STRIP $$DESTDIR/$${TARGET}$${EXE_EXT} #.exe in win
 }
 else: DESTDIR = $$qtLongName($$BUILD_DIR/lib)
 
