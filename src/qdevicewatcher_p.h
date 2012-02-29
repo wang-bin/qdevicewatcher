@@ -23,9 +23,17 @@
 /*!
   Usually we use CONFIG_SOCKETNOTIFIER. CONFIG_TCPSOCKET and CONFIG_THREAD are test case
 */
+#include <QtCore/qglobal.h>
 #define CONFIG_SOCKETNOTIFIER 1
 #define CONFIG_TCPSOCKET 0  //QtNetwork
+
+#if defined(Q_OS_WINCE)
+#define CONFIG_THREAD 1
+#elif defined(Q_OS_LINUX)
 #define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
+#else
+#define CONFIG_THREAD 0
+#endif
 
 //#define QT_NO_DEBUG_OUTPUT 0
 #define CONFIG_DEBUG 1
@@ -99,21 +107,25 @@ private:
 	QDeviceWatcher *watcher;
 
 	bool init();
+#if CONFIG_THREAD
+    virtual void run();
+#endif //CONFIG_THREAD
 #if defined(Q_OS_LINUX)
 	QBuffer buffer;
 	void parseLine(const QByteArray& line);
-#if CONFIG_THREAD
-	virtual void run();
-#elif CONFIG_TCPSOCKET
+# if CONFIG_TCPSOCKET
 	class QTcpSocket *tcp_socket;
-#elif CONFIG_SOCKETNOTIFIER
+# elif CONFIG_SOCKETNOTIFIER
 	class QSocketNotifier *socket_notifier;
-#endif
+# endif
 
 	QString bus_name;
 	int netlink_socket;
-#elif defined(Q_OS_WIN)
+#elif defined(Q_OS_WIN32)
 	HWND hwnd;
+#elif defined(Q_OS_WINCE)
+    HANDLE qStore;
+    HANDLE hNotify;
 #endif
 };
 

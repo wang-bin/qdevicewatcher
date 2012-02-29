@@ -2,11 +2,14 @@ TEMPLATE = lib
 QT -= gui
 CONFIG *= qdevicewatcher-buildlib
 
-include(libQDeviceWatcher.pri)
+!include(libQDeviceWatcher.pri): error(could not find ibQDeviceWatcher.pri)
 
 #src
-unix: SOURCES += qdevicewatcher_linux.cpp
-else:win32: SOURCES += qdevicewatcher_win.cpp
+unix:  SOURCES += qdevicewatcher_linux.cpp
+win32 {
+	wince*: SOURCES += qdevicewatcher_wince.cpp
+	else:  SOURCES += qdevicewatcher_win.cpp
+}
 
 SOURCES += qdevicewatcher.cpp \
 	qdevicechangeevent.cpp

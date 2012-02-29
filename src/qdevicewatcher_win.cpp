@@ -20,6 +20,7 @@
 
 #include "qdevicewatcher_p.h"
 
+#ifdef Q_OS_WIN
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 
@@ -51,10 +52,52 @@ static inline QStringList drivesFromMask(quint32 driveBits)
 		return ret;
 }
 
+/*
+ http://msdn.microsoft.com/en-us/library/windows/desktop/aa363246%28v=vs.85%29.aspx
+typedef struct _DEV_BROADCAST_HDR {
+  DWORD dbch_size;
+  DWORD dbch_devicetype;
+  DWORD dbch_reserved;
+} DEV_BROADCAST_HDR, *PDEV_BROADCAST_HDR;
+
+dbch_size:
+    The size of this structure, in bytes.
+    If this is a user-defined event, this member must be the size of this header, plus the size of the variable-length data in the _DEV_BROADCAST_USERDEFINED structure.
+dbch_devicetype:
+    The device type, which determines the event-specific information that follows the first three members. This member can be one of the following values.
+    Value	Meaning
+    DBT_DEVTYP_DEVICEINTERFACE 0x00000005
+    Class of devices. This structure is a DEV_BROADCAST_DEVICEINTERFACE structure.
+    DBT_DEVTYP_HANDLE 0x00000006
+    File system handle. This structure is a DEV_BROADCAST_HANDLE structure.
+    DBT_DEVTYP_OEM 0x00000000
+    OEM- or IHV-defined device type. This structure is a DEV_BROADCAST_OEM structure.
+    DBT_DEVTYP_PORT 0x00000003
+    Port device (serial or parallel). This structure is a DEV_BROADCAST_PORT structure.
+    DBT_DEVTYP_VOLUME 0x00000002
+    Logical volume. This structure is a DEV_BROADCAST_VOLUME structure.
+dbch_reserved:
+    Reserved; do not use.
+*/
 LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (message == WM_DEVICECHANGE) {
 		DEV_BROADCAST_HDR *lpdb = (DEV_BROADCAST_HDR *)lParam;
+        zDebug("Device type address: %#x", lpdb);
+        if (lpdb) {
+            if (lpdb->dbch_devicetype == DBT_DEVTYP_VOLUME) {
+                zDebug("DBT_DEVTYP_VOLUME");
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_PORT) {
+                zDebug("DBT_DEVTYP_PORT");
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
+                zDebug("DBT_DEVTYP_DEVICEINTERFACE");
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_OEM) {
+                zDebug("DBT_DEVTYP_OEM");
+            } else {
+                zDebug("Unknow device type");
+            }
+        }
+
 		switch (wParam) {
 		case DBT_DEVNODES_CHANGED:
 			zDebug("DBT_DEVNODES_CHANGED message received, no extended info.");
@@ -117,7 +160,13 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 						QCoreApplication::postEvent(obj, event, Qt::HighEventPriority);
 					}
 				}
-			}
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_PORT) {
+                zDebug("DBT_DEVTYP_PORT");
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
+                zDebug("DBT_DEVTYP_DEVICEINTERFACE");
+            } else if (lpdb->dbch_devicetype == DBT_DEVTYP_OEM) {
+                zDebug("DBT_DEVTYP_OEM");
+            }
 			break;
 		case DBT_DEVICETYPESPECIFIC:
 			zDebug("DBT_DEVICETYPESPECIFIC message received, may contain an extended info.");
@@ -221,3 +270,5 @@ bool QDeviceWatcherPrivate::init()
 void QDeviceWatcherPrivate::parseDeviceInfo()
 {
 }
+
+#endif //Q_OS_WIN

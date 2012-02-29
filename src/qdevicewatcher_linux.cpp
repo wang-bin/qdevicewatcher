@@ -18,7 +18,7 @@
 ******************************************************************************/
 
 #include "qdevicewatcher_p.h"
-//#ifdef Q_OS_LINUX
+#ifdef Q_OS_LINUX
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,4 +264,4 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	}
 }
 
-//#endif //Q_OS_LINUX
+#endif //Q_OS_LINUX
