@@ -17,12 +17,15 @@
 	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
+/*!
+ * http://msdn.microsoft.com/en-us/library/aa447466.aspx
+*/
 #include "qdevicewatcher_p.h"
 
 #include <windows.h>
 #include <msgqueue.h>
 #include <pnp.h>
-#include <storemgr.h>
+#include <Storemgr.h> //BLOCK_DRIVER_GUID
 #include <QtCore/QCoreApplication>
 #include "qdevicechangeevent.h"
 
@@ -35,7 +38,12 @@
 #else
 #  define TCHAR2QString(x)	 QString::fromLocal8Bit((x))
 #endif //UNICODE
-	
+
+typedef union {
+	DEVDETAIL d;
+	char pad[sizeof(DEVDETAIL)+MAX_DEVCLASS_NAMELEN]; //BYTE pad[sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR))];
+} Q_DEVDETAIL;
+
 bool QDeviceWatcherPrivate::start()
 {
 	if (!init())
@@ -49,12 +57,12 @@ bool QDeviceWatcherPrivate::stop()
 {
 	quit();
 
-	if (!StopDeviceNotifications(mNotification)) {
-		//GetLastError
+	if (!StopDeviceNotifications(mNotificationHandle)) {
+		qWarning("StopDeviceNotifications() error: %d", GetLastError());
 		return false;
 	}
-	if (!CloseMsgQueue(mQueue)) {
-		//GetLastError
+	if (!CloseMsgQueue(mQueueHandle)) {
+		qWarning("CloseMsgQueue() error: %d", GetLastError());
 		return false;
 	}
 	return true;
@@ -66,19 +74,24 @@ bool QDeviceWatcherPrivate::init()
 	MSGQUEUEOPTIONS msgopts;
 
 	msgopts.dwSize = sizeof(MSGQUEUEOPTIONS);
-	msgopts.dwFlags = 0; //MSGQUEUE_NOPRECOMMIT, MSGQUEUE_ALLOW_BROKEN
+	msgopts.dwFlags = 0; //MSGQUEUE_VARIABLESIZE | MSGQUEUE_MSGSIZE; /*msdn*/ //MSGQUEUE_NOPRECOMMIT | MSGQUEUE_ALLOW_BROKEN
 	msgopts.dwMaxMessages = 0;
-	msgopts.cbMaxMessage = sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR));
+	msgopts.cbMaxMessage = sizeof(Q_DEVDETAIL);
 	msgopts.bReadAccess = TRUE;
+	msgopts.dwMaxMessages = 0; //?
+	//msgopts.cbMaxMsgQueue = 0; //?
+	//msgopts.dwDesiredAccess = GENERIC_READ;
+	//msgopts.dwShareMode = 0;
+	//msgopts.dwCreationDisposition = CREATE_NEW;
 
-	mQueue = CreateMsgQueue(NULL, &msgopts);
-	if (mQueue == NULL) {
-		//GetLastError
+	mQueueHandle = CreateMsgQueue(NULL, &msgopts);
+	if (mQueueHandle == NULL) {
+		qWarning("CreateMsgQueue() error: %d", GetLastError());
 		return false;
 	}
-	mNotification = RequestDeviceNotifications(&BLOCK_DRIVER_GUID, mQueue, TRUE);
-	if (mNotification == NULL) {
-		//GetLastError
+	mNotificationHandle = RequestDeviceNotifications(&BLOCK_DRIVER_GUID, mQueueHandle, TRUE);
+	if (mNotificationHandle == NULL) {
+		qWarning("RequestDeviceNotifications() error: %d", GetLastError());
 		return false;
 	}
 	return true;
@@ -88,15 +101,14 @@ void QDeviceWatcherPrivate::run()
 {
 	DWORD flags;
 	DWORD size;
-	//
-	BYTE DevDetail[sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR))];
-	DEVDETAIL *pDetail = (DEVDETAIL*)DevDetail;
+	Q_DEVDETAIL detail;
+	SetLastError(0); //?
 	while (true) {
-		if(WaitForSingleObject(mQueue, 3000) == WAIT_OBJECT_0) {
-			while(ReadMsgQueue(mQueue, pDetail, sizeof(DevDetail), &size, 1, &flags)) {
-				QString dev = TCHAR2QString(pDetail->szName);
+		if(WaitForSingleObject(mQueueHandle, 3000) == WAIT_OBJECT_0) {
+			while(ReadMsgQueue(mQueueHandle, &detail, sizeof(detail), &size, 1, &flags) == TRUE) {
+				QString dev = TCHAR2QString(detail.d.szName);
 				QDeviceChangeEvent *event = 0;
-				if (pDetail->fAttached) {
+				if (detail.d.fAttached) {
 					emitDeviceAdded(dev);
 					event = new QDeviceChangeEvent(QDeviceChangeEvent::Add, dev);
 				} else {
@@ -111,4 +123,8 @@ void QDeviceWatcherPrivate::run()
 			}
 		}
 	}
+}
+
+void QDeviceWatcherPrivate::parseDeviceInfo()
+{
 }

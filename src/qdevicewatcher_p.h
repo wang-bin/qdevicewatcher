@@ -124,8 +124,8 @@ private:
 #elif defined(Q_OS_WIN32)
 	HWND hwnd;
 #elif defined(Q_OS_WINCE)
-	HANDLE mQueue;
-	HANDLE mNotification;
+    HANDLE mQueueHandle;
+    HANDLE mNotificationHandle;
 #endif
 };
 
