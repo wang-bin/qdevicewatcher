@@ -250,7 +250,7 @@ void QDeviceWatcherPrivate::parseLine(const QByteArray &line)
 	} else if (action_str==QLatin1String("remove")) {
 		emitDeviceRemoved(dev);
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Remove, dev);
-	} else {
+	} else if (action_str==QLatin1String("change")) {
 		emitDeviceChanged(dev);
 		event = new QDeviceChangeEvent(QDeviceChangeEvent::Change, dev);
 	}
