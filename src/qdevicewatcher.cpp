@@ -21,7 +21,7 @@
 #include "qdevicewatcher_p.h"
 
 QDeviceWatcher::QDeviceWatcher(QObject* parent)
-	:QObject(parent),d_ptr(new QDeviceWatcherPrivate)
+	:QObject(parent),running(false),d_ptr(new QDeviceWatcherPrivate)
 {
 	Q_D(QDeviceWatcher);
 	d->setWatcher(this);
@@ -40,15 +40,22 @@ bool QDeviceWatcher::start()
 	Q_D(QDeviceWatcher);
 	if (!d->start()) {
 		stop();
-		return false;
+		running = false;
 	}
-	return true;
+	running = true;
+	return running;
 }
 
 bool QDeviceWatcher::stop()
 {
 	Q_D(QDeviceWatcher);
-	return d->stop();
+	running = !d->stop();
+	return !running;
+}
+
+bool QDeviceWatcher::isRunning() const
+{
+	return running;
 }
 
 void QDeviceWatcher::appendEventReceiver(QObject *receiver)

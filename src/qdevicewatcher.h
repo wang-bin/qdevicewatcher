@@ -35,6 +35,7 @@ public:
 
 	bool start();
 	bool stop();
+	bool isRunning() const;
 
 	void appendEventReceiver(QObject* receiver);
 
@@ -44,6 +45,7 @@ signals:
 	void deviceRemoved(const QString& dev);
 
 protected:
+	bool running;
 	QDeviceWatcherPrivate *d_ptr;
 };
 

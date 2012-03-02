@@ -109,7 +109,7 @@ private:
 #elif defined(Q_OS_WINCE)
 	HANDLE mQueueHandle;
 	HANDLE mNotificationHandle;
-#endif
+#endif    
 };
 
 
