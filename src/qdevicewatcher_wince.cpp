@@ -22,7 +22,6 @@
 */
 #include "qdevicewatcher_p.h"
 
-#include <windows.h>
 #include <msgqueue.h>
 #include <pnp.h>
 #include <Storemgr.h> //BLOCK_DRIVER_GUID

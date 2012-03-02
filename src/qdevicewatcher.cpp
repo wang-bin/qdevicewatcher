@@ -56,3 +56,21 @@ void QDeviceWatcher::appendEventReceiver(QObject *receiver)
 	Q_D(QDeviceWatcher);
 	d->event_receivers.append(receiver);
 }
+
+void QDeviceWatcherPrivate::emitDeviceAdded(const QString &dev)
+{
+	if (!QMetaObject::invokeMethod(watcher, "deviceAdded", Q_ARG(QString, dev)))
+		qWarning("invoke deviceAdded failed");
+}
+
+void QDeviceWatcherPrivate::emitDeviceChanged(const QString &dev)
+{
+	if (!QMetaObject::invokeMethod(watcher, "deviceChanged", Q_ARG(QString, dev)))
+		qWarning("invoke deviceChanged failed");
+}
+
+void QDeviceWatcherPrivate::emitDeviceRemoved(const QString &dev)
+{
+	if (!QMetaObject::invokeMethod(watcher, "deviceRemoved", Q_ARG(QString, dev)))
+		qWarning("invoke deviceRemoved failed");
+}

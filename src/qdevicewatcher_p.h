@@ -43,20 +43,13 @@
 #define zDebug(fmt, ...)
 #endif //CONFIG_DEBUG
 
-#include <QtCore/QList>
-#if CONFIG_THREAD
-#include <QtCore/QThread>
-#else
-#include <QtCore/QObject>
-#endif //CONFIG_THREAD
-
-#include "qdevicewatcher.h"
-
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #else
 #include <QtCore/QBuffer>
 #endif //Q_OS_WIN
+#include <QtCore/QList>
+#include <QtCore/QThread>
 
 class QDeviceWatcher;
 class QDeviceWatcherPrivate
@@ -84,19 +77,9 @@ public:
 	bool stop();
 
 	//Do not use Qt::DirectConnection. this thread is not watcher's thread!
-	inline void emitDeviceAdded(const QString& dev) {
-		if (!QMetaObject::invokeMethod(watcher, "deviceAdded", Q_ARG(QString, dev)))
-			qWarning("invoke deviceAdded failed");
-	}
-	//Linux: when umounting the device
-	inline void emitDeviceChanged(const QString& dev) {
-		if (!QMetaObject::invokeMethod(watcher, "deviceChanged", Q_ARG(QString, dev)))
-			qWarning("invoke deviceChanged failed");
-	}
-	inline void emitDeviceRemoved(const QString& dev) {
-		if (!QMetaObject::invokeMethod(watcher, "deviceRemoved", Q_ARG(QString, dev)))
-			qWarning("invoke deviceRemoved failed");
-	}
+	void emitDeviceAdded(const QString& dev);
+	void emitDeviceChanged(const QString& dev); //Linux: when umounting the device
+	void emitDeviceRemoved(const QString& dev);
 
 	QList<QObject*> event_receivers;
 
@@ -124,8 +107,8 @@ private:
 #elif defined(Q_OS_WIN32)
 	HWND hwnd;
 #elif defined(Q_OS_WINCE)
-    HANDLE mQueueHandle;
-    HANDLE mNotificationHandle;
+	HANDLE mQueueHandle;
+	HANDLE mNotificationHandle;
 #endif
 };
 
