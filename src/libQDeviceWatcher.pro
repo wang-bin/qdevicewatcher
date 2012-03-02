@@ -8,7 +8,7 @@ CONFIG *= qdevicewatcher-buildlib
 unix:  SOURCES += qdevicewatcher_linux.cpp
 win32 {
 	wince*: SOURCES += qdevicewatcher_wince.cpp
-	else:  SOURCES += qdevicewatcher_win.cpp
+	else:  SOURCES += qdevicewatcher_win32.cpp
 }
 
 SOURCES += qdevicewatcher.cpp \
