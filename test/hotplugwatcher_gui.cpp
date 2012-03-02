@@ -1,5 +1,5 @@
 /******************************************************************************
-	hotplugwatcher_gui.cpp: description
+	hotplugwatcher_gui.cpp: gui application to watch hotplug event
 	Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
 	
 	This program is free software; you can redistribute it and/or modify

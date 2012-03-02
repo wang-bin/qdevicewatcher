@@ -1,20 +1,20 @@
 /******************************************************************************
-    main_gui.cpp: description
-    Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
-    
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+	main_gui.cpp: gui application to watch hotplug event
+	Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
+	
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
 
@@ -26,19 +26,19 @@ static HotplugWatcher_GUI *gui = 0;
 
 void MsgOuput(QtMsgType type, const char* msg)
 {
-    Q_UNUSED(type);
-    if (gui)
-        gui->appendMessage(msg);
+	Q_UNUSED(type);
+	if (gui)
+		gui->appendMessage(msg);
 }
 
 int main(int argc, char *argv[])
 {
-    qInstallMsgHandler(MsgOuput);
-    QApplication a(argc, argv);
+	qInstallMsgHandler(MsgOuput);
+	QApplication a(argc, argv);
 
-    HotplugWatcher_GUI hotplug;
-    gui = &hotplug;
-    hotplug.show();
-    qDebug("Hotplug watcher started");
-    return a.exec();
+	HotplugWatcher_GUI hotplug;
+	gui = &hotplug;
+	hotplug.show();
+	qDebug("Hotplug watcher started");
+	return a.exec();
 }
