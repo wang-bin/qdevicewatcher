@@ -20,7 +20,8 @@
 
 #include "qdevicewatcher_p.h"
 
-#ifdef Q_OS_WIN
+//TODO: If wince works, use Q_OS_WIN
+#ifdef Q_OS_WIN32
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 
@@ -271,4 +272,4 @@ void QDeviceWatcherPrivate::parseDeviceInfo()
 {
 }
 
-#endif //Q_OS_WIN
+#endif //Q_OS_WIN32
