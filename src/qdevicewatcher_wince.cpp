@@ -44,6 +44,11 @@ typedef union {
 	char pad[sizeof(DEVDETAIL)+MAX_DEVCLASS_NAMELEN]; //BYTE pad[sizeof(DEVDETAIL) + (MAX_PATH * sizeof(TCHAR))];
 } Q_DEVDETAIL;
 
+
+QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
+{
+}
+
 bool QDeviceWatcherPrivate::start()
 {
 	if (!init())
@@ -105,7 +110,7 @@ void QDeviceWatcherPrivate::run()
 	SetLastError(0); //?
 	while (true) {
 		if(WaitForSingleObject(mQueueHandle, 3000) == WAIT_OBJECT_0) {
-			while(ReadMsgQueue(mQueueHandle, &detail, sizeof(detail), &size, 1, &flags) == TRUE) {
+			while(ReadMsgQueue(mQueueHandle, &detail, sizeof(detail), &size, 1, &flags)) {
 				QString dev = TCHAR2QString(detail.d.szName);
 				QDeviceChangeEvent *event = 0;
 				if (detail.d.fAttached) {
