@@ -1,7 +1,7 @@
 TARGET = hotplugwatcher_gui
 include(../src/libQDeviceWatcher.pri)
 
-win32:LIBS += -lUser32
+win32:!wince*:LIBS += -lUser32
 
 HEADERS += \
     hotplugwatcher_gui.h
