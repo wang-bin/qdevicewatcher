@@ -39,6 +39,6 @@ int main(int argc, char *argv[])
 	HotplugWatcher_GUI hotplug;
 	gui = &hotplug;
 	hotplug.show();
-	qDebug("Hotplug watcher started");
+	qDebug("Hotplug watcher(libQDeviceWatcher test app)\nwbsecg1@gmail.com\n");
 	return a.exec();
 }
