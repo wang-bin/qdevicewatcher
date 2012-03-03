@@ -22,6 +22,7 @@
 */
 #include "qdevicewatcher_p.h"
 
+#ifdef Q_OS_WINCE
 #include <msgqueue.h>
 #include <pnp.h>
 #include <Storemgr.h> //BLOCK_DRIVER_GUID
@@ -127,3 +128,5 @@ void QDeviceWatcherPrivate::run()
 void QDeviceWatcherPrivate::parseDeviceInfo()
 {
 }
+
+#endif //Q_OS_WINCE
