@@ -27,6 +27,7 @@ class QTextBrowser;
 class QSystemTrayIcon;
 class QLabel;
 class QPushButton;
+class QToolButton;
 class QDeviceWatcher;
 class HotplugWatcher_GUI : public QWidget
 {
@@ -39,6 +40,7 @@ public:
 	
 public slots:
 	void toggleWatch();
+	void showDetail(bool show);
 	void slotDeviceAdded(const QString& dev);
 	void slotDeviceRemoved(const QString& dev);
 	void slotDeviceChanged(const QString& dev);
@@ -49,6 +51,7 @@ private:
 	QLabel *state;
 	QTextBrowser *msg_view;
 	QPushButton *button;
+	QToolButton *detail_button;
 	QSystemTrayIcon *tray;
 };
 

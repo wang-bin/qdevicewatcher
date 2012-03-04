@@ -25,6 +25,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QTextBrowser>
+#include <QtGui/QToolButton>
 #include <QtGui/QSystemTrayIcon>
 #include <QtGui/QMessageBox>
 
@@ -38,11 +39,19 @@ HotplugWatcher_GUI::HotplugWatcher_GUI(QWidget *parent) :
 
 	state = new QLabel(this);
 	button = new QPushButton(tr("Start"), this);
+	detail_button = new QToolButton(this);
+	detail_button->setText(tr("Detail"));
+	detail_button->setCheckable(true);
+	detail_button->setChecked(true);
 	msg_view = new QTextBrowser(this);
 	msg_view->setLineWrapMode(QTextEdit::NoWrap);
 
+	QHBoxLayout *hbl = new QHBoxLayout(this);
+	hbl->addWidget(button);
+	hbl->addWidget(detail_button);
+
 	vbl->addWidget(state);
-	vbl->addWidget(button);
+	vbl->addLayout(hbl);
 	vbl->addWidget(msg_view);
 
 	tray = new QSystemTrayIcon(this);
@@ -55,6 +64,7 @@ HotplugWatcher_GUI::HotplugWatcher_GUI(QWidget *parent) :
 	connect(watcher, SIGNAL(deviceRemoved(QString)), this, SLOT(slotDeviceRemoved(QString)), Qt::DirectConnection);
 
 	connect(button, SIGNAL(clicked()), SLOT(toggleWatch()));
+	connect(detail_button, SIGNAL(toggled(bool)), SLOT(showDetail(bool)));
 }
 
 HotplugWatcher_GUI::~HotplugWatcher_GUI()
@@ -82,11 +92,19 @@ void HotplugWatcher_GUI::toggleWatch()
 	}
 }
 
+void HotplugWatcher_GUI::showDetail(bool show)
+{
+	msg_view->setVisible(show);
+	int w = width();
+	adjustSize();  //width changes
+	resize(w, height());
+}
+
 void HotplugWatcher_GUI::slotDeviceAdded(const QString &dev)
 {
 	qDebug("tid=%#x: add %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
 
-	state->setText("Add: " + dev);
+	state->setText("<font color=#0000ff>Add: </font>" + dev);
 	tray->showMessage(tr("New device"), dev);
 }
 
@@ -94,7 +112,7 @@ void HotplugWatcher_GUI::slotDeviceChanged(const QString &dev)
 {
 	qDebug("tid=%#x: change %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
 
-	state->setText("Change: " + dev);
+	state->setText("<font color=#0000ff>Change: </font>" + dev);
 	tray->showMessage(tr("Change device"), dev);
 }
 
@@ -102,6 +120,6 @@ void HotplugWatcher_GUI::slotDeviceRemoved(const QString &dev)
 {
 	qDebug("tid=%#x: remove %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
 
-	state->setText("Remove: " + dev);
+	state->setText("<font color=#0000ff>Remove: </font>" + dev);
 	tray->showMessage(tr("Remove device"), dev);
 }
