@@ -1,4 +1,4 @@
-Can detect usb add and remove event.
-Tested on linux and windows(mingw and msvc)
+Can detect usb storage add and remove event.
+Tested on linux and windows(mingw and msvc). WinCE is to be tested.
 
-Thanks qdrive project: https://gitorious.org/qdrive/qdrive
+Thanks qdrive project for the win32 part: https://gitorious.org/qdrive/qdrive
