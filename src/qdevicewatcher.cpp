@@ -81,3 +81,14 @@ void QDeviceWatcherPrivate::emitDeviceRemoved(const QString &dev)
 	if (!QMetaObject::invokeMethod(watcher, "deviceRemoved", Q_ARG(QString, dev)))
 		qWarning("invoke deviceRemoved failed");
 }
+
+void QDeviceWatcherPrivate::emitDeviceAction(const QString &dev, const QString &action)
+{
+	QString a(action.toLower());
+	if (a == QLatin1String("add"))
+		emitDeviceAdded(dev);
+	else if (a == QLatin1String("remove"))
+		emitDeviceRemoved(dev);
+	else if (a == QLatin1String("change"))
+		emitDeviceChanged(dev);
+}

@@ -80,6 +80,7 @@ public:
 	void emitDeviceAdded(const QString& dev);
 	void emitDeviceChanged(const QString& dev); //Linux: when umounting the device
 	void emitDeviceRemoved(const QString& dev);
+	void emitDeviceAction(const QString& dev, const QString& action);
 
 	QList<QObject*> event_receivers;
 
@@ -109,7 +110,7 @@ private:
 #elif defined(Q_OS_WINCE)
 	HANDLE mQueueHandle;
 	HANDLE mNotificationHandle;
-#endif    
+#endif
 };
 
 
