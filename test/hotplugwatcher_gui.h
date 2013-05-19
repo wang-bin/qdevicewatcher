@@ -21,7 +21,7 @@
 #ifndef HOTPLUGWATCHER_GUI_H
 #define HOTPLUGWATCHER_GUI_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class QTextBrowser;
 class QSystemTrayIcon;

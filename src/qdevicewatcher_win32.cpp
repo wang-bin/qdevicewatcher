@@ -229,11 +229,11 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				}
 				foreach (const QString &drive, drives) {
 					if (db_volume->dbcv_flags & DBTF_MEDIA)
-						zDebug("Drive %c: Media has been removed.", drive.at(0).toAscii());
+                        zDebug("Drive %c: Media has been removed.", drive.at(0).toLatin1());
 					else if (db_volume->dbcv_flags & DBTF_NET)
-						zDebug("Drive %c: Network share has been removed.", drive.at(0).toAscii());
+                        zDebug("Drive %c: Network share has been removed.", drive.at(0).toLatin1());
 					else
-						zDebug("Drive %c: Device has been removed.", drive.at(0).toAscii());
+                        zDebug("Drive %c: Device has been removed.", drive.at(0).toLatin1());
 					watcher->emitDeviceAction(drive, action_str);
 					if (!watcher->event_receivers.isEmpty())
 						events.append(new QDeviceChangeEvent(action, drive));

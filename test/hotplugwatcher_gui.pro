@@ -1,4 +1,5 @@
 TARGET = hotplugwatcher_gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 include(../src/libQDeviceWatcher.pri)
 
 win32:!wince*:LIBS += -lUser32

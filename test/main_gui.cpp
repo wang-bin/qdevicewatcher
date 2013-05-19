@@ -19,13 +19,20 @@
 
 
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "hotplugwatcher_gui.h"
 
 static HotplugWatcher_GUI *gui = 0;
 
-void MsgOuput(QtMsgType type, const char* msg)
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#define qInstallMessageHandler qInstallMsgHandler
+void MsgOuput(QtMsgType type, const char *msg)
 {
+#else
+void MsgOuput(QtMsgType type, const QMessageLogContext &, const QString& qmsg)
+{
+    const char* msg = qPrintable(qmsg);
+#endif
 	Q_UNUSED(type);
 	if (gui)
 		gui->appendMessage(msg);
@@ -33,7 +40,7 @@ void MsgOuput(QtMsgType type, const char* msg)
 
 int main(int argc, char *argv[])
 {
-	qInstallMsgHandler(MsgOuput);
+    qInstallMessageHandler(MsgOuput);
 	QApplication a(argc, argv);
 
 	HotplugWatcher_GUI hotplug;

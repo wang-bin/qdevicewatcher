@@ -21,13 +21,13 @@
 #include "hotplugwatcher_gui.h"
 
 #include <QtCore/QThread>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextBrowser>
-#include <QtGui/QToolButton>
-#include <QtGui/QSystemTrayIcon>
-#include <QtGui/QMessageBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QTextBrowser>
+#include <QToolButton>
+#include <QSystemTrayIcon>
+#include <QMessageBox>
 
 #include "qdevicewatcher.h"
 
