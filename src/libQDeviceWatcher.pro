@@ -10,9 +10,13 @@ win32 {
 	wince*: SOURCES += qdevicewatcher_wince.cpp
 	else:  SOURCES += qdevicewatcher_win32.cpp
 }
+macx {
+    LIBS += -framework DiskArbitration -framework Foundation
+}
 
 SOURCES += qdevicewatcher.cpp \
-	qdevicechangeevent.cpp
+	qdevicechangeevent.cpp \
+    qdevicewatcher_mac.cpp
 
 HEADERS += \
 	qdevicewatcher_p.h \

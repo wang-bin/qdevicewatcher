@@ -31,6 +31,9 @@
 #define CONFIG_THREAD 1
 #elif defined(Q_OS_LINUX)
 #define CONFIG_THREAD (!CONFIG_SOCKETNOTIFIER && !CONFIG_TCPSOCKET)
+#elif defined Q_OS_MAC //OSX or MACX
+#define CONFIG_THREAD 1
+#include <DiskArbitration/DiskArbitration.h>
 #else
 #define CONFIG_THREAD 0
 #endif
@@ -73,7 +76,7 @@ public:
 	~QDeviceWatcherPrivate();
 
 	void setWatcher(QDeviceWatcher *w) {watcher=w;}
-	bool start();
+    bool start(); //conflict with QThread::start()
 	bool stop();
 
 	//Do not use Qt::DirectConnection. this thread is not watcher's thread!
@@ -111,6 +114,10 @@ private:
 	HANDLE mQueueHandle;
 	HANDLE mNotificationHandle;
 #endif
+#ifdef Q_OS_MAC
+    volatile bool mStop;
+    DASessionRef mSession;
+#endif //Q_OS_MAC
 };
 
 
