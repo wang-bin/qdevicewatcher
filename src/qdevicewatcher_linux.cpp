@@ -1,6 +1,6 @@
 /******************************************************************************
   QDeviceWatcherPrivate: watching depends on platform
-  Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+  Copyright (C) 2011-2015 Wang Bin <wbsecg1@gmail.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ******************************************************************************/
 
+#include "qdevicewatcher.h"
 #include "qdevicewatcher_p.h"
 #ifdef Q_OS_LINUX
 
@@ -47,7 +48,6 @@
 #include <QtNetwork/QTcpSocket>
 #endif
 
-#include "qdevicechangeevent.h"
 
 #define UEVENT_BUFFER_SIZE      2048
 

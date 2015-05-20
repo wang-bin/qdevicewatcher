@@ -1,6 +1,6 @@
 /******************************************************************************
 	hotplugwatcher_gui.cpp: gui application to watch hotplug event
-	Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2012-2015 Wang Bin <wbsecg1@gmail.com>
 	
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ void HotplugWatcher_GUI::showDetail(bool show)
 
 void HotplugWatcher_GUI::slotDeviceAdded(const QString &dev)
 {
-    qDebug("tid=%#x: add %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: add %s", (quintptr) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Add: </font>" + dev);
 	tray->showMessage(tr("New device"), dev);
@@ -110,7 +110,7 @@ void HotplugWatcher_GUI::slotDeviceAdded(const QString &dev)
 
 void HotplugWatcher_GUI::slotDeviceChanged(const QString &dev)
 {
-    qDebug("tid=%#x: change %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: change %s", (quintptr) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Change: </font>" + dev);
 	tray->showMessage(tr("Change device"), dev);
@@ -118,7 +118,7 @@ void HotplugWatcher_GUI::slotDeviceChanged(const QString &dev)
 
 void HotplugWatcher_GUI::slotDeviceRemoved(const QString &dev)
 {
-    qDebug("tid=%#x: remove %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: remove %s", (quintptr) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Remove: </font>" + dev);
 	tray->showMessage(tr("Remove device"), dev);

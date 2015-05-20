@@ -1,6 +1,6 @@
 /******************************************************************************
 	qdevicewatcher_wince.cpp: for wince. TO BE TESTED
-	Copyright (C) 2012 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2012-2015 Wang Bin <wbsecg1@gmail.com>
 	
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 /*!
  * http://msdn.microsoft.com/en-us/library/aa447466.aspx
 */
+#include "qdevicewatcher.h"
 #include "qdevicewatcher_p.h"
 
 #ifdef Q_OS_WINCE
@@ -27,7 +28,6 @@
 #include <pnp.h>
 #include <Storemgr.h> //BLOCK_DRIVER_GUID
 #include <QtCore/QCoreApplication>
-#include "qdevicechangeevent.h"
 
 #ifdef UNICODE
 #  if QT_VERSION >= 0x040000

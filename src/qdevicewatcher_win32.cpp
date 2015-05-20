@@ -1,6 +1,6 @@
 ﻿/******************************************************************************
 	QDeviceWatcherPrivate: watching depends on platform
-	Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2011-2015 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 ******************************************************************************/
 
 
+#include "qdevicewatcher.h"
 #include "qdevicewatcher_p.h"
 
 //TODO: If wince works, use Q_OS_WIN
@@ -25,7 +26,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 
-#include "qdevicechangeevent.h"
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500

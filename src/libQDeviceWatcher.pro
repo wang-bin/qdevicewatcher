@@ -18,14 +18,11 @@ win32 {
   else:  SOURCES += qdevicewatcher_win32.cpp
 }
 
-SOURCES += qdevicewatcher.cpp \
-        qdevicechangeevent.cpp
+SOURCES += qdevicewatcher.cpp
 
 
 HEADERS += \
 	qdevicewatcher_p.h \
-	qdevicewatcher.h \
-	qdevicechangeevent.h \
-	qdevicewatcher_global.h
+	qdevicewatcher.h
 
 

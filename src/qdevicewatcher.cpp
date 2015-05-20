@@ -1,6 +1,6 @@
 /******************************************************************************
 	QDeviceWatcher: Device watcher class
-	Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2011-2015 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -91,4 +91,13 @@ void QDeviceWatcherPrivate::emitDeviceAction(const QString &dev, const QString &
 		emitDeviceRemoved(dev);
 	else if (a == QLatin1String("change"))
 		emitDeviceChanged(dev);
+}
+
+
+//const QEvent::Type  QDeviceChangeEvent::EventType = static_cast<QEvent::Type>(QEvent::registerEventType());
+QDeviceChangeEvent::QDeviceChangeEvent(Action action, const QString &device) :
+    QEvent(registeredType())
+{
+    m_action = action;
+    m_device = device;
 }
