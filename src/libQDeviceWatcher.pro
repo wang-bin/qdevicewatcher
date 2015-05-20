@@ -1,9 +1,8 @@
 TEMPLATE = lib
 QT -= gui
 CONFIG *= qdevicewatcher-buildlib
-staticlib: DEFINES += BUILD_QDEVICEWATCHER_STATIC
-
 !include(libQDeviceWatcher.pri): error(could not find ibQDeviceWatcher.pri)
+staticlib|isEqual(STATICLINK, 1): DEFINES += BUILD_QDEVICEWATCHER_STATIC
 
 unix {
   macx {
