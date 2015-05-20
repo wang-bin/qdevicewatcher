@@ -34,7 +34,7 @@ class HotplugWatcher : public QThread
 	Q_OBJECT
 public:
 	HotplugWatcher(QObject *parent = 0):QThread(parent) {
-		qDebug("tid=%#x %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__);
+		qDebug("tid=%#x %s", (qptrdiff)QThread::currentThreadId(), __PRETTY_FUNCTION__);
 		start();
 
 		moveToThread(this); //Let bool event(QEvent *e) be in another thread
@@ -48,9 +48,9 @@ public:
 	}
 
 public slots:
-	void slotDeviceAdded(const QString& dev) { qDebug("tid=%#x %s: add %s", (unsigned int) QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
-	void slotDeviceRemoved(const QString& dev) { qDebug("tid=%#x %s: remove %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
-	void slotDeviceChanged(const QString& dev) { qDebug("tid=%#x %s: change %s", (unsigned int)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+    void slotDeviceAdded(const QString& dev) { qDebug("tid=%#x %s: add %s", (qptrdiff)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+	void slotDeviceRemoved(const QString& dev) { qDebug("tid=%#x %s: remove %s", (qptrdiff)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
+	void slotDeviceChanged(const QString& dev) { qDebug("tid=%#x %s: change %s", (qptrdiff)QThread::currentThreadId(), __PRETTY_FUNCTION__, qPrintable(dev));}
 protected:
 	virtual bool event(QEvent *e) {
 		if (e->type() == QDeviceChangeEvent::registeredType()) {
@@ -61,7 +61,7 @@ protected:
 			else if (event->action() == QDeviceChangeEvent::Remove)
 				action = "Remove";
 
-			qDebug("tid=%#x event=%d %s: %s %s", (unsigned int)QThread::currentThreadId(), e->type(), __PRETTY_FUNCTION__, qPrintable(action), qPrintable(event->device()));
+			qDebug("tid=%#x event=%d %s: %s %s", (qptrdiff)QThread::currentThreadId(), e->type(), __PRETTY_FUNCTION__, qPrintable(action), qPrintable(event->device()));
 			event->accept();
 			return true;
 		}

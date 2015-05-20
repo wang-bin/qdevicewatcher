@@ -1,4 +1,5 @@
 TARGET = hotplugwatcher_gui
+CONFIG -= app_bundle
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 include(../src/libQDeviceWatcher.pri)
 

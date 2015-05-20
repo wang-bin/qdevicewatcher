@@ -102,7 +102,7 @@ void HotplugWatcher_GUI::showDetail(bool show)
 
 void HotplugWatcher_GUI::slotDeviceAdded(const QString &dev)
 {
-	qDebug("tid=%#x: add %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: add %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Add: </font>" + dev);
 	tray->showMessage(tr("New device"), dev);
@@ -110,7 +110,7 @@ void HotplugWatcher_GUI::slotDeviceAdded(const QString &dev)
 
 void HotplugWatcher_GUI::slotDeviceChanged(const QString &dev)
 {
-	qDebug("tid=%#x: change %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: change %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Change: </font>" + dev);
 	tray->showMessage(tr("Change device"), dev);
@@ -118,7 +118,7 @@ void HotplugWatcher_GUI::slotDeviceChanged(const QString &dev)
 
 void HotplugWatcher_GUI::slotDeviceRemoved(const QString &dev)
 {
-	qDebug("tid=%#x: remove %s", (unsigned int) QThread::currentThreadId(), qPrintable(dev));
+    qDebug("tid=%#x: remove %s", (qptrdiff) QThread::currentThreadId(), qPrintable(dev));
 
 	state->setText("<font color=#0000ff>Remove: </font>" + dev);
 	tray->showMessage(tr("Remove device"), dev);

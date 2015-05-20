@@ -1,22 +1,26 @@
 TEMPLATE = lib
 QT -= gui
 CONFIG *= qdevicewatcher-buildlib
+staticlib: DEFINES += BUILD_QDEVICEWATCHER_STATIC
 
 !include(libQDeviceWatcher.pri): error(could not find ibQDeviceWatcher.pri)
 
-#src
-unix:  SOURCES += qdevicewatcher_linux.cpp
-win32 {
-	wince*: SOURCES += qdevicewatcher_wince.cpp
-	else:  SOURCES += qdevicewatcher_win32.cpp
-}
-macx {
+unix {
+  macx {
+    SOURCES += qdevicewatcher_mac.cpp
     LIBS += -framework DiskArbitration -framework Foundation
+  } else {
+    SOURCES += qdevicewatcher_linux.cpp
+  }
+}
+win32 {
+  wince*: SOURCES += qdevicewatcher_wince.cpp
+  else:  SOURCES += qdevicewatcher_win32.cpp
 }
 
 SOURCES += qdevicewatcher.cpp \
-	qdevicechangeevent.cpp \
-    qdevicewatcher_mac.cpp
+        qdevicechangeevent.cpp
+
 
 HEADERS += \
 	qdevicewatcher_p.h \
