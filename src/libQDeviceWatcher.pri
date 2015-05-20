@@ -49,7 +49,7 @@ NAME = QDeviceWatcher
 }
 eval(LIB$$upper($$NAME)_PRI_INCLUDED = 1)
 
-LIB_VERSION = $$QTAV_VERSION #0.x.y may be wrong for dll
+LIB_VERSION = 2.1.0 #0.x.y may be wrong for dll
 
 # If user haven't supplied STATICLINK, then auto-detect
 isEmpty(STATICLINK) {
