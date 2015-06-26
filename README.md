@@ -1,7 +1,7 @@
 QDeviceWatcher can detect usb storage add and remove event.
-Tested on linux (>= 2.6) and windows(mingw and msvc). WinCE is to be tested.
+Tested on linux (>= 2.6), windows(mingw and msvc) and OSX(buggy).
 
-Thanks qdrive project for the win32 part: https://gitorious.org/qdrive/qdrive
+License under LGPL 2.1 or later
 
 Screenshot
 -----
