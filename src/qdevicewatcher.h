@@ -31,7 +31,7 @@
 #  define Q_DW_EXPORT Q_DECL_EXPORT
 #else
 #  undef Q_DW_EXPORT
-#  define Q_DW_EXPORT Q_DECL_IMPORT //only for vc?
+#  define Q_DW_EXPORT //Q_DECL_IMPORT //only for vc?
 #endif
 #endif //BUILD_QDEVICEWATCHER_STATIC
 
