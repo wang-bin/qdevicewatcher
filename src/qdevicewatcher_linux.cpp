@@ -176,7 +176,6 @@ bool QDeviceWatcherPrivate::init()
 
 	memset(&snl, 0x00, sizeof(struct sockaddr_nl));
 	snl.nl_family = AF_NETLINK;
-	snl.nl_pid = getpid();
 	snl.nl_groups = UDEV_MONITOR_KERNEL;
 
 	netlink_socket = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
