@@ -15,6 +15,7 @@ unix {
 win32 {
   wince*: SOURCES += qdevicewatcher_wince.cpp
   else:  SOURCES += qdevicewatcher_win32.cpp
+  LIBS *= -luser32
 }
 
 SOURCES += qdevicewatcher.cpp
