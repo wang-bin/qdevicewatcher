@@ -78,6 +78,7 @@ static inline QStringList drivesFromMask(quint32 driveBits) //driveBits ->unitma
 
 void static UpdateDevice(PDEV_BROADCAST_DEVICEINTERFACE pDevInf, WPARAM wParam)
 {
+	(void)pDevInf; (void)wParam;
 /*
 	// dbcc_name:
 	// \\?\USB#Vid_04e8&Pid_503b#0002F9A9828E0F06#{a5dcbf10-6530-11d2-901f-00c04fb951ed}
@@ -212,9 +213,9 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				DEV_BROADCAST_VOLUME *db_volume = (DEV_BROADCAST_VOLUME *)lpdb;
 				QStringList drives = drivesFromMask(db_volume->dbcv_unitmask);
 #ifdef GWLP_USERDATA
-				QDeviceWatcherPrivate *watcher = (QDeviceWatcherPrivate *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				auto *watcher = reinterpret_cast<QDeviceWatcherPrivate *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 #else
-				QDeviceWatcherPrivate *watcher = (QDeviceWatcherPrivate *)GetWindowLong(hwnd, GWL_USERDATA);
+				auto *watcher = reinterpret_cast<QDeviceWatcherPrivate *>(GetWindowLong(hwnd, GWL_USERDATA));
 #endif
 				QList<QDeviceChangeEvent *> events;
 				QString action_str("add");
@@ -247,7 +248,7 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				}
 			} else if (lpdb->dbch_devicetype == DBT_DEVTYP_PORT) {
 				zDebug("DBT_DEVTYP_PORT");
-				PDEV_BROADCAST_PORT pDevPort = (PDEV_BROADCAST_PORT)lpdb;
+//				PDEV_BROADCAST_PORT pDevPort = (PDEV_BROADCAST_PORT)lpdb;
 			} else if (lpdb->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
 				//RegisterDeviceNotification()
 				zDebug("DBT_DEVTYP_DEVICEINTERFACE");
@@ -255,10 +256,10 @@ LRESULT CALLBACK dw_internal_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				UpdateDevice(pDevInf, wParam);
 			} else if (lpdb->dbch_devicetype == DBT_DEVTYP_OEM) {
 				zDebug("DBT_DEVTYP_OEM");
-				DEV_BROADCAST_OEM *pDevOem = (DEV_BROADCAST_OEM*)lpdb;
+//				DEV_BROADCAST_OEM *pDevOem = (DEV_BROADCAST_OEM*)lpdb;
 			} else if (lpdb->dbch_devicetype == DBT_DEVTYP_HANDLE) {
 				zDebug("DBT_DEVTYP_HANDLE");
-				PDEV_BROADCAST_HANDLE pDevHnd = (PDEV_BROADCAST_HANDLE)lpdb;
+//				PDEV_BROADCAST_HANDLE pDevHnd = (PDEV_BROADCAST_HANDLE)lpdb;
 			}
 			break;
 		case DBT_DEVICETYPESPECIFIC:
