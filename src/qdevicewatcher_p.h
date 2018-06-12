@@ -64,7 +64,7 @@ class QDeviceWatcherPrivate
 {
 	Q_OBJECT
 public:
-	QDeviceWatcherPrivate(QObject *parent = 0) :
+	explicit QDeviceWatcherPrivate(QObject *parent = 0) :
 #if CONFIG_THREAD
 	QThread(parent)
 #else
@@ -91,7 +91,7 @@ private slots:
 	void parseDeviceInfo();
 
 private:
-	QDeviceWatcher *watcher;
+	QDeviceWatcher *watcher = nullptr;
 
 	bool init();
 #if CONFIG_THREAD
@@ -101,21 +101,21 @@ private:
 	QBuffer buffer;
 	void parseLine(const QByteArray& line);
 # if CONFIG_TCPSOCKET
-	class QTcpSocket *tcp_socket;
+	class QTcpSocket *tcp_socket = nullptr;
 # elif CONFIG_SOCKETNOTIFIER
-	class QSocketNotifier *socket_notifier;
+	class QSocketNotifier *socket_notifier = nullptr;
 # endif
 
 	QString bus_name;
-	int netlink_socket;
+	int netlink_socket = 0;
 #elif defined(Q_OS_WIN32)
-	HWND hwnd;
+	HWND hwnd = 0;
 #elif defined(Q_OS_WINCE)
-	HANDLE mQueueHandle;
-	HANDLE mNotificationHandle;
+	HANDLE mQueueHandle = 0;
+	HANDLE mNotificationHandle = 0;
 #endif
 #ifdef Q_OS_MAC
-    volatile bool mStop;
+	volatile bool mStop = true;
     DASessionRef mSession;
 #endif //Q_OS_MAC
 };

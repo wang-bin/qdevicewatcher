@@ -11,5 +11,5 @@ testgui.depends += libqdevicewatcher
 
 OTHER_FILES += \
     TODO.txt \
-    README
+    README.md
 
