@@ -17,7 +17,6 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ******************************************************************************/
 
-
 #ifndef HOTPLUGWATCHER_GUI_H
 #define HOTPLUGWATCHER_GUI_H
 
@@ -31,28 +30,28 @@ class QToolButton;
 class QDeviceWatcher;
 class HotplugWatcher_GUI : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit HotplugWatcher_GUI(QWidget *parent = 0);
-	~HotplugWatcher_GUI();
+    explicit HotplugWatcher_GUI(QWidget *parent = 0);
+    ~HotplugWatcher_GUI();
 
-	void appendMessage(const QString& msg);
-	
+    void appendMessage(const QString &msg);
+
 public slots:
-	void toggleWatch();
-	void showDetail(bool show);
-	void slotDeviceAdded(const QString& dev);
-	void slotDeviceRemoved(const QString& dev);
-	void slotDeviceChanged(const QString& dev);
+    void toggleWatch();
+    void showDetail(bool show);
+    void slotDeviceAdded(const QString &dev);
+    void slotDeviceRemoved(const QString &dev);
+    void slotDeviceChanged(const QString &dev);
 
 private:
-	QDeviceWatcher *watcher;
+    QDeviceWatcher *watcher;
 
-	QLabel *state;
-	QTextBrowser *msg_view;
-	QPushButton *button;
-	QToolButton *detail_button;
-	QSystemTrayIcon *tray;
+    QLabel *state;
+    QTextBrowser *msg_view;
+    QPushButton *button;
+    QToolButton *detail_button;
+    QSystemTrayIcon *tray;
 };
 
 #endif // HOTPLUGWATCHER_GUI_H
