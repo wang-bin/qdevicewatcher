@@ -4,6 +4,10 @@ CONFIG *= qdevicewatcher-buildlib
 !include(libQDeviceWatcher.pri): error(could not find ibQDeviceWatcher.pri)
 staticlib|isEqual(STATICLINK, 1): DEFINES += BUILD_QDEVICEWATCHER_STATIC
 
+isEqual(Q_DEVICE_WATCHER_DEBUG, 1) {
+    DEFINES += CONFIG_DEBUG
+}
+
 unix {
   macx {
     SOURCES += qdevicewatcher_mac.cpp

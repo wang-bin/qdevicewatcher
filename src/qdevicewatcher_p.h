@@ -38,8 +38,6 @@
 #define CONFIG_THREAD 0
 #endif
 
-//#define QT_NO_DEBUG_OUTPUT 0
-#define CONFIG_DEBUG 1
 #if CONFIG_DEBUG
 #define zDebug(fmt, ...) qDebug("%s: " #fmt, __FUNCTION__, ##__VA_ARGS__)
 #else
