@@ -17,10 +17,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ******************************************************************************/
 
-
-
-#include <QApplication>
 #include "hotplugwatcher_gui.h"
+#include <QApplication>
 
 static HotplugWatcher_GUI *gui = 0;
 
@@ -29,22 +27,22 @@ static HotplugWatcher_GUI *gui = 0;
 void MsgOuput(QtMsgType type, const char *msg)
 {
 #else
-void MsgOuput(QtMsgType type, const QMessageLogContext &, const QString& msg)
+void MsgOuput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
 #endif
-	Q_UNUSED(type)
-	if (gui)
-		gui->appendMessage(msg);
+    Q_UNUSED(type)
+    if (gui)
+        gui->appendMessage(msg);
 }
 
 int main(int argc, char *argv[])
 {
-	qInstallMessageHandler(MsgOuput);
-	QApplication a(argc, argv);
+    qInstallMessageHandler(MsgOuput);
+    QApplication a(argc, argv);
 
-	HotplugWatcher_GUI hotplug;
-	gui = &hotplug;
-	hotplug.show();
-	qDebug("Hotplug watcher(libQDeviceWatcher test app)\nwbsecg1@gmail.com\n");
-	return a.exec();
+    HotplugWatcher_GUI hotplug;
+    gui = &hotplug;
+    hotplug.show();
+    qDebug("Hotplug watcher(libQDeviceWatcher test app)\nwbsecg1@gmail.com\n");
+    return a.exec();
 }

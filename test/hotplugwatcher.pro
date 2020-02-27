@@ -4,6 +4,9 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TARGET = hotplugwatcher
+
+Q_DEVICE_WATCHER_DEBUG = 1
+cache(Q_DEVICE_WATCHER_DEBUG)
 include(../src/libQDeviceWatcher.pri)
 
 win32:!wince*:LIBS += -lUser32

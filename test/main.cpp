@@ -17,14 +17,14 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ******************************************************************************/
 
-#include <QtCore/QCoreApplication>
 #include "hotplugwatcher.h"
+#include <QtCore/QCoreApplication>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-	HotplugWatcher hotplug;
-	qDebug("Hotplug watcher(libQDeviceWatcher test app)\nwbsecg1@gmail.com\n");
+    HotplugWatcher hotplug;
+    qDebug("Hotplug watcher(libQDeviceWatcher test app)\nwbsecg1@gmail.com\n");
     return a.exec();
 }

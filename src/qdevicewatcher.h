@@ -20,59 +20,57 @@
 #ifndef QDEVICEWATCHER_H
 #define QDEVICEWATCHER_H
 
-#include <QtCore/QObject>
 #include <QtCore/QEvent>
+#include <QtCore/QObject>
 
 #ifdef BUILD_QDEVICEWATCHER_STATIC
 #define Q_DW_EXPORT
 #else
 #if defined(BUILD_QDEVICEWATCHER_LIB)
-#  undef Q_DW_EXPORT
-#  define Q_DW_EXPORT Q_DECL_EXPORT
+#undef Q_DW_EXPORT
+#define Q_DW_EXPORT Q_DECL_EXPORT
 #else
-#  undef Q_DW_EXPORT
-#  define Q_DW_EXPORT //Q_DECL_IMPORT //only for vc?
+#undef Q_DW_EXPORT
+#define Q_DW_EXPORT //Q_DECL_IMPORT //only for vc?
 #endif
 #endif //BUILD_QDEVICEWATCHER_STATIC
-
 
 class QDeviceWatcherPrivate;
 
 class Q_DW_EXPORT QDeviceWatcher : public QObject
 {
-	Q_OBJECT
-	Q_DECLARE_PRIVATE(QDeviceWatcher)
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QDeviceWatcher)
 public:
-	explicit QDeviceWatcher(QObject *parent = 0);
-	~QDeviceWatcher();
+    explicit QDeviceWatcher(QObject *parent = 0);
+    ~QDeviceWatcher();
 
-	bool start();
-	bool stop();
-	bool isRunning() const;
+    bool start();
+    bool stop();
+    bool isRunning() const;
 
-	void appendEventReceiver(QObject* receiver);
+    void appendEventReceiver(QObject *receiver);
 
 signals:
-	void deviceAdded(const QString& dev);
-	void deviceChanged(const QString& dev); //when umounting the device
-	void deviceRemoved(const QString& dev);
+    void deviceAdded(const QString &dev);
+    void deviceChanged(const QString &dev); //when umounting the device
+    void deviceRemoved(const QString &dev);
 
 protected:
-	bool running;
-	QDeviceWatcherPrivate *d_ptr;
+    bool running;
+    QDeviceWatcherPrivate *d_ptr;
 };
-
 
 class Q_DW_EXPORT QDeviceChangeEvent : public QEvent
 {
 public:
-    enum Action { Add, Remove, Change};
+    enum Action { Add, Remove, Change };
     //static const Type EventType; //VC link error
 
-    explicit QDeviceChangeEvent(Action action, const QString& device);
+    explicit QDeviceChangeEvent(Action action, const QString &device);
 
-    Action action() const {return m_action;}
-    QString device() const {return m_device;}
+    Action action() const { return m_action; }
+    QString device() const { return m_device; }
     static Type registeredType()
     {
         static Type EventType = static_cast<Type>(registerEventType());

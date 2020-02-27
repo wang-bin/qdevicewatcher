@@ -1,6 +1,9 @@
 TARGET = hotplugwatcher_gui
 CONFIG -= app_bundle
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+Q_DEVICE_WATCHER_DEBUG = 1
+cache(Q_DEVICE_WATCHER_DEBUG)
 include(../src/libQDeviceWatcher.pri)
 
 win32:!wince*:LIBS += -lUser32
