@@ -14,6 +14,10 @@ unix {
     LIBS += -framework DiskArbitration -framework Foundation
   } else {
     SOURCES += qdevicewatcher_linux.cpp
+
+    greaterThan(QT_MAJOR_VERSION, 5) {
+      QT += core5compat
+    }
   }
 }
 win32 {
