@@ -41,7 +41,11 @@
 #include <unistd.h>
 
 #include <QtCore/QCoreApplication>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QtCore/qregexp.h>
+#else
+#include <QRegExp>
+#endif
 #if CONFIG_SOCKETNOTIFIER
 #include <QtCore/QSocketNotifier>
 #elif CONFIG_TCPSOCKET
