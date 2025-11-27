@@ -294,7 +294,7 @@ static inline QString className()
 static inline HWND dw_create_internal_window(const void *userData)
 {
     QString className = ::className();
-    HINSTANCE hi = GetModuleHandle(0);
+    HINSTANCE hi = GetModuleHandle(NULL);
 
     WNDCLASS wc;
     wc.style = 0;
@@ -359,7 +359,7 @@ static inline void dw_destroy_internal_window(HWND hwnd)
 #if CONFIG_NOTIFICATION
     UnregisterDeviceNotification(hDevNotify);
 #endif
-    UnregisterClass(reinterpret_cast<const wchar_t *>(className().utf16()), GetModuleHandle(0));
+    UnregisterClass(reinterpret_cast<const wchar_t *>(className().utf16()), GetModuleHandle(NULL));
 }
 
 QDeviceWatcherPrivate::~QDeviceWatcherPrivate()
