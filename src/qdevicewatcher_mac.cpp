@@ -53,6 +53,7 @@ bool QDeviceWatcherPrivate::start()
 {
     init();
     QThread::start();
+    return true;
 }
 
 bool QDeviceWatcherPrivate::stop()
@@ -62,6 +63,7 @@ bool QDeviceWatcherPrivate::stop()
     //DAUnregisterApprovalCallback
     DAUnregisterCallback(mSession, (void *) onDiskAppear, this);
     DAUnregisterCallback(mSession, (void *) onDiskDisappear, this);
+    return true;
 }
 
 void QDeviceWatcherPrivate::parseDeviceInfo() {}
@@ -74,6 +76,7 @@ bool QDeviceWatcherPrivate::init()
 
     DARegisterDiskAppearedCallback(mSession, NULL, onDiskAppear, this);
     DARegisterDiskDisappearedCallback(mSession, NULL, onDiskDisappear, this);
+    return true;
 }
 
 void QDeviceWatcherPrivate::run()
